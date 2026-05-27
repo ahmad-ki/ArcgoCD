@@ -1,26 +1,152 @@
-@'
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tictactoe-html
+  namespace: default
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>GitOps Tic-Tac-Toe</title>
+        <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; background-color: #1a1a2e; color: #fff; }
+            h1 { margin-bottom: 5px; color: #e94560; }
+            .status { margin-bottom: 20px; font-size: 1.2rem; font-weight: 300; }
+            .board { display: grid; grid-template-columns: repeat(3, 100px); grid-template-rows: repeat(3, 100px); gap: 10px; background-color: #16213e; padding: 10px; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+            .cell { display: flex; align-items: center; justify-content: center; background-color: #0f3460; font-size: 2.5rem; font-weight: bold; cursor: pointer; border-radius: 5px; transition: background 0.2s; user-select: none; }
+            .cell:hover { background-color: #16213e; }
+            .cell.X { color: #e94560; }
+            .cell.O { color: #00fff5; }
+            button { margin-top: 25px; padding: 10px 20px; font-size: 1rem; background-color: #e94560; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: opacity 0.2s; }
+            button:hover { opacity: 0.9; }
+        </style>
+    </head>
+    <body>
+        <h1>TIK-TAK-TOK</h1>
+        <div class="status" id="statusText">Player X's turn</div>
+        <div class="board" id="board">
+            <div class="cell" data-index="0"></div>
+            <div class="cell" data-index="1"></div>
+            <div class="cell" data-index="2"></div>
+            <div class="cell" data-index="3"></div>
+            <div class="cell" data-index="4"></div>
+            <div class="cell" data-index="5"></div>
+            <div class="cell" data-index="6"></div>
+            <div class="cell" data-index="7"></div>
+            <div class="cell" data-index="8"></div>
+        </div>
+        <button id="restartBtn">Reset Game</button>
+
+        <script>
+            const board = document.getElementById('board');
+            const cells = document.querySelectorAll('.cell');
+            const statusText = document.getElementById('statusText');
+            const restartBtn = document.getElementById('restartBtn');
+            let currentPlayer = 'X';
+            let gameState = ["", "", "", "", "", "", "", "", ""];
+            let isGameActive = true;
+
+            const winningConditions = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ];
+
+            function handleCellClick(e) {
+                const clickedCell = e.target;
+                const clickedCellIndex = parseInt(clickedCell.getAttribute('data-index'));
+
+                if (gameState[clickedCellIndex] !== "" || !isGameActive) return;
+
+                gameState[clickedCellIndex] = currentPlayer;
+                clickedCell.textContent = currentPlayer;
+                clickedCell.classList.add(currentPlayer);
+
+                checkResult();
+            }
+
+            function checkResult() {
+                let roundWon = false;
+                for (let i = 0; i < winningConditions.length; i++) {
+                    const winCondition = winningConditions[i];
+                    let a = gameState[winCondition[0]];
+                    let b = gameState[winCondition[1]];
+                    let c = gameState[winCondition[2]];
+                    if (a === '' || b === '' || c === '') continue;
+                    if (a === b && b === c) {
+                        roundWon = true;
+                        break;
+                    }
+                }
+
+                if (roundWon) {
+                    statusText.textContent = `Player ${currentPlayer} Wins! 🎉`;
+                    statusText.style.color = '#00ff66';
+                    isGameActive = false;
+                    return;
+                }
+
+                if (!gameState.includes("")) {
+                    statusText.textContent = "It's a Draw! 👔";
+                    isGameActive = false;
+                    return;
+                }
+
+                currentPlayer = currentPlayer === "X" ? "O" : "X";
+                statusText.textContent = `Player ${currentPlayer}'s turn`;
+            }
+
+            function restartGame() {
+                currentPlayer = 'X';
+                gameState = ["", "", "", "", "", "", "", "", ""];
+                isGameActive = true;
+                statusText.textContent = `Player ${currentPlayer}'s turn`;
+                statusText.style.color = '#fff';
+                cells.forEach(cell => {
+                    cell.textContent = "";
+                    cell.classList.remove('X', 'O');
+                });
+            }
+
+            board.addEventListener('click', handleCellClick);
+            restartBtn.addEventListener('restartClick', restartGame);
+            restartBtn.onclick = restartGame;
+        </script>
+    </body>
+    </html>
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: tiktok-frontend
   namespace: default
   labels:
-    app: tiktok
+    app: tiktok-play
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: tiktok
+      app: tiktok-play
   template:
     metadata:
       labels:
-        app: tiktok
+        app: tiktok-play
     spec:
       containers:
       - name: web
-        image: nginxdemos/hello:plain-text
+        image: nginx:alpine
         ports:
         - containerPort: 80
+        volumeMounts:
+        - name: html-volume
+          mountPath: /usr/share/nginx/html # Overwriting the default nginx splash page with our game
+      volumes:
+      - name: html-volume
+        configMap:
+          name: tictactoe-html
 ---
 apiVersion: v1
 kind: Service
@@ -28,10 +154,29 @@ metadata:
   name: tiktok-service
   namespace: default
 spec:
-  type: ClusterIP
   ports:
-  - port: 80
-    targetPort: 80
+  - port: 8080         # Internal Cluster Service Port
+    targetPort: 80     # Target Nginx container port
   selector:
-    app: tiktok
-'@ | Out-File -FilePath "tiktok-app.yaml" -Encoding utf8
+    app: tiktok-play
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tiktok-ingress
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: 127.0.0.1.nip.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: tiktok-service
+            port:
+              number: 8080
