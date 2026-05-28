@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: shooting-game
-  namespace: shooting-game
+  namespace: default
 spec:
   replicas: 3
   selector:
