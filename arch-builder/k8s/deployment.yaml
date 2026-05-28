@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: arch-builder-frontend
-  namespace: production
+  namespace: default   # ✅ unchanged
   labels:
     app: arch-builder-frontend
     version: "1.0"
@@ -46,12 +46,13 @@ spec:
             port: 80
           initialDelaySeconds: 3
           periodSeconds: 5
+
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: arch-builder-backend
-  namespace: production
+  namespace: default   # ✅ FIXED (was production)
   labels:
     app: arch-builder-backend
     version: "1.0"
