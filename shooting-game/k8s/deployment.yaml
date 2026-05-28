@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shooting-game
+  namespace: shooting-game
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: shooting-game
+  template:
+    metadata:
+      labels:
+        app: shooting-game
+    spec:
+      containers:
+      - name: shooting-game
+        image: ahmadki123/shooting-game:latest
+        ports:
+        - containerPort: 80
+
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
