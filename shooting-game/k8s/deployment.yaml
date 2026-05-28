@@ -30,3 +30,13 @@ spec:
             path: /
             port: 80
           initialDelaySeconds: 10
+          spec:
+  containers:
+  - name: shooting-game
+    image: ahmadki123/shooting-game:latest
+
+    env:
+    - name: POD_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name
