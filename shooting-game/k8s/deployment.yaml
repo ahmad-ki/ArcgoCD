@@ -16,6 +16,15 @@ spec:
       containers:
       - name: shooting-game
         image: ahmadki123/shooting-game:latest
+
+        
+env: 
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+
+
         ports:
         - containerPort: 80
 
@@ -35,8 +44,4 @@ spec:
   - name: shooting-game
     image: ahmadki123/shooting-game:latest
 
-    env:
-    - name: POD_NAME
-      valueFrom:
-        fieldRef:
-          fieldPath: metadata.name
+    
