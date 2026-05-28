@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Architecture Builder</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #222535;
+      --border: #2e3147;
+      --text: #e8eaf0;
+      --muted: #8b8fa8;
+      --accent: #5b8dee;
+      --accent2: #36c98e;
+      --danger: #e55353;
+      --font: 'Segoe UI', system-ui, sans-serif;
+      --mono: 'Fira Code', 'Cascadia Code', monospace;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      min-height: 100vh;
+      font-size: 15px;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    header svg { color: var(--accent); }
+    header h1 { font-size: 18px; font-weight: 600; }
+    header p  { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+    main { max-width: 900px; margin: 0 auto; padding: 2rem; }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media(max-width:640px){ .grid { grid-template-columns:1fr; } }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+    .card-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    label { font-size: 13px; color: var(--muted); display: block; margin-bottom: 6px; }
+
+    .pills { display: flex; flex-wrap: wrap; gap: 6px; }
+    .pill {
+      padding: 5px 13px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+    .pill:hover { border-color: var(--accent); color: var(--accent); }
+    .pill.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    .slider-wrap { display: flex; align-items: center; gap: 12px; }
+    input[type=range] {
+      flex: 1;
+      -webkit-appearance: none;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--border);
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+    }
+    .slider-val { font-size: 14px; font-weight: 600; min-width: 52px; text-align: right; color: var(--accent); }
+
+    .btn-gen {
+      width: 100%;
+      margin-top: 1.5rem;
+      padding: 13px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn-gen:hover { opacity: 0.85; }
+    .btn-gen:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Results */
+    #results { display: none; margin-top: 2rem; }
+    .res-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1.5rem;
+    }
+    .rtab {
+      padding: 9px 16px;
+      font-size: 13px;
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+    .rtab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
+
+    .rpanel { display: none; }
+    .rpanel.active { display: block; }
+
+    .res-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .res-card h3 { font-size: 14px; font-weight: 500; color: var(--muted); margin-bottom: 12px; }
+
+    .metrics { display: grid; grid-template-columns: repeat(auto-fit,minmax(110px,1fr)); gap: 8px; margin-bottom: 12px; }
+    .metric { background: var(--surface2); border-radius: 8px; padding: 10px 12px; }
+    .metric-label { font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+    .metric-val { font-size: 20px; font-weight: 700; color: var(--accent2); }
+
+    pre.code {
+      background: #0a0c12;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.7;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .cost-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .cost-row:last-child { border: none; font-weight: 600; padding-top: 12px; }
+    .cost-row span:last-child { color: var(--accent2); }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-right: 5px;
+    }
+    .badge-blue  { background: #1a2d4d; color: var(--accent); }
+    .badge-green { background: #0f2d20; color: var(--accent2); }
+
+    .arch-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 9px 11px;
+      background: var(--surface2);
+      border-radius: 8px;
+      margin-bottom: 6px;
+    }
+    .arch-icon { font-size: 18px; flex-shrink: 0; }
+    .arch-label { font-size: 11px; color: var(--muted); }
+    .arch-val { font-size: 13px; color: var(--text); margin-top: 1px; }
+
+    .loading { display: flex; align-items: center; gap: 10px; padding: 2rem; color: var(--muted); font-size: 14px; }
+    .dots span { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin: 0 2px; animation: blink 1s infinite; }
+    .dots span:nth-child(2){ animation-delay:.2s }
+    .dots span:nth-child(3){ animation-delay:.4s }
+    @keyframes blink { 0%,100%{opacity:.2} 50%{opacity:1} }
+
+    .copy-btn {
+      float: right;
+      padding: 3px 9px;
+      font-size: 11px;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    .reset-btn {
+      padding: 5px 14px;
+      font-size: 12px;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--muted);
+      cursor: pointer;
+      margin-left: auto;
+      display: block;
+      margin-bottom: 1rem;
+    }
+    .reset-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+  </style>
+</head>
+<body>
+
+<header>
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+    <circle cx="12" cy="12" r="3"/>
+    <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+  </svg>
+  <div>
+    <h1>Smart Architecture Builder</h1>
+    <p>Define requirements → get architecture, sizing, cost & Kubernetes files</p>
+  </div>
+</header>
+
+<main>
+  <div id="form-section">
+    <div class="grid">
+      <div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-title">Scale</div>
+          <label>Concurrent users</label>
+          <div class="slider-wrap">
+            <input type="range" id="users-slider" min="0" max="4" step="1" value="1"
+              oninput="document.getElementById('users-disp').textContent=['100','1K','10K','100K','1M'][this.value]">
+            <span class="slider-val" id="users-disp">1K</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Application type</div>
+          <label style="margin-bottom:8px">Business category</label>
+          <div class="pills" id="app-type">
+            <div class="pill on" data-v="E-commerce">E-commerce</div>
+            <div class="pill" data-v="CRM">CRM</div>
+            <div class="pill" data-v="SaaS platform">SaaS platform</div>
+            <div class="pill" data-v="Document processing">Docs / Files</div>
+            <div class="pill" data-v="Search system">Search system</div>
+          </div>
+          <label style="margin-top:14px;margin-bottom:8px">Application tier</label>
+          <div class="pills" id="app-tier">
+            <div class="pill on" data-v="Dynamic application">Dynamic app</div>
+            <div class="pill" data-v="Static website">Static site</div>
+            <div class="pill" data-v="API-based system">API-only</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-title">Workload profile</div>
+          <label style="margin-bottom:8px">Select all that apply</label>
+          <div class="pills" id="workload" data-multi="true">
+            <div class="pill on" data-v="Read-heavy">Read-heavy</div>
+            <div class="pill" data-v="Write-heavy">Write-heavy</div>
+            <div class="pill" data-v="File uploads (PDF/images)">File uploads</div>
+            <div class="pill" data-v="Real-time APIs">Real-time</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Cloud preference</div>
+          <div class="pills" id="cloud-pref">
+            <div class="pill on" data-v="Azure">Azure</div>
+            <div class="pill" data-v="AWS">AWS</div>
+            <div class="pill" data-v="GCP">GCP</div>
+            <div class="pill" data-v="On-premise / Local">On-premise</div>
+            <div class="pill" data-v="Best fit (auto)">Auto-select</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-gen" id="gen-btn" onclick="generate()">
+      ⚡ Generate Architecture
+    </button>
+  </div>
+
+  <!-- Results -->
+  <div id="results">
+    <button class="reset-btn" onclick="resetForm()">← New design</button>
+
+    <div id="loading" class="loading">
+      <div class="dots"><span></span><span></span><span></span></div>
+      Computing architecture...
+    </div>
+
+    <div id="result-content" style="display:none">
+      <div class="res-tabs" role="tablist">
+        <button class="rtab active" onclick="switchTab('arch')">Architecture</button>
+        <button class="rtab" onclick="switchTab('sizing')">Sizing</button>
+        <button class="rtab" onclick="switchTab('cloud')">Cloud + Cost</button>
+        <button class="rtab" onclick="switchTab('k8s')">K8s YAML</button>
+        <button class="rtab" onclick="switchTab('diagram')">Diagram</button>
+      </div>
+
+      <div id="tab-arch" class="rpanel active"></div>
+      <div id="tab-sizing" class="rpanel"></div>
+      <div id="tab-cloud" class="rpanel"></div>
+      <div id="tab-k8s" class="rpanel"></div>
+      <div id="tab-diagram" class="rpanel"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+const API = window.location.hostname === 'localhost'
+  ? 'http://localhost:3000/api/architecture'
+  : '/api/architecture';
+
+const USER_LEVELS = ['100','1K','10K','100K','1M'];
+const USER_LABELS = ['~100','~1K','~10K','~100K','~1M'];
+
+let k8sText = '';
+
+// Pill selection
+document.querySelectorAll('.pills').forEach(g => {
+  const multi = g.dataset.multi === 'true';
+  g.querySelectorAll('.pill').forEach(p => {
+    p.addEventListener('click', () => {
+      if (!multi) g.querySelectorAll('.pill').forEach(x => x.classList.remove('on'));
+      p.classList.toggle('on');
+      if (!multi && !p.classList.contains('on')) p.classList.add('on');
+    });
+  });
+});
+
+function getPills(id) {
+  return Array.from(document.querySelectorAll(`#${id} .pill.on`)).map(e => e.dataset.v);
+}
+
+function switchTab(name) {
+  const tabs = ['arch','sizing','cloud','k8s','diagram'];
+  document.querySelectorAll('.rtab').forEach((t,i) => t.classList.toggle('active', tabs[i] === name));
+  document.querySelectorAll('.rpanel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+function resetForm() {
+  document.getElementById('form-section').style.display = 'block';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('gen-btn').disabled = false;
+}
+
+async function generate() {
+  const uIdx  = parseInt(document.getElementById('users-slider').value);
+  const users = USER_LEVELS[uIdx];
+  const appType  = getPills('app-type')[0] || 'E-commerce';
+  const appTier  = getPills('app-tier')[0] || 'Dynamic application';
+  const workloads = getPills('workload');
+  const cloud = getPills('cloud-pref')[0] || 'Azure';
+
+  document.getElementById('gen-btn').disabled = true;
+  document.getElementById('form-section').style.display = 'none';
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('loading').style.display = 'flex';
+  document.getElementById('result-content').style.display = 'none';
+
+  try {
+    const res = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ users, appType, appTier, workloads, cloud }),
+    });
+    const data = await res.json();
+    renderResults(data, appType, USER_LABELS[uIdx]);
+  } catch(e) {
+    document.getElementById('loading').innerHTML =
+      `<span style="color:#e55353">⚠ API unreachable. Run the backend: <code>node server.js</code></span>`;
+  }
+}
+
+function renderResults(r, appType, userLabel) {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('result-content').style.display = 'block';
+
+  // ── Architecture tab ─────────────────────────────────────────────────────────
+  const a = r.arch;
+  const icons = { frontend:'🖥', backend:'⚙️', database:'🗄', cache:'⚡', queue:'📨', cdn:'🌐' };
+  const labels = { frontend:'Frontend', backend:'Backend', database:'Database', cache:'Cache', queue:'Message Queue', cdn:'CDN' };
+  let archHtml = '<div class="res-card"><h3>🏗 Architecture layers</h3>';
+  Object.keys(a).forEach(k => {
+    if (a[k]) archHtml += `
+      <div class="arch-row">
+        <span class="arch-icon">${icons[k]}</span>
+        <div><div class="arch-label">${labels[k]}</div><div class="arch-val">${a[k]}</div></div>
+      </div>`;
+  });
+  document.getElementById('tab-arch').innerHTML = archHtml + '</div>';
+
+  // ── Sizing tab ───────────────────────────────────────────────────────────────
+  const s = r.sizing;
+  document.getElementById('tab-sizing').innerHTML = `
+    <div class="res-card">
+      <h3>🖥 Infrastructure sizing</h3>
+      <div class="metrics">
+        <div class="metric"><div class="metric-label">Frontend pods</div><div class="metric-val">${s.frontend_pods}</div></div>
+        <div class="metric"><div class="metric-label">Backend pods</div><div class="metric-val">${s.backend_pods}</div></div>
+        <div class="metric"><div class="metric-label">Nodes</div><div class="metric-val">${s.node_count}</div></div>
+        <div class="metric"><div class="metric-label">Storage GB</div><div class="metric-val">${s.storage_gb}</div></div>
+      </div>
+      <div style="font-size:13px;color:#8b8fa8;line-height:1.9">
+        <div><b style="color:#e8eaf0">Node type:</b> ${s.node_type}</div>
+        <div><b style="color:#e8eaf0">Pod resources:</b> CPU ${s.cpu_per_pod} / RAM ${s.memory_per_pod}</div>
+        <div><b style="color:#e8eaf0">HPA:</b> min ${s.hpa_min} → max ${s.hpa_max} replicas — ${s.hpa_trigger}</div>
+      </div>
+    </div>
+    <div class="res-card">
+      <h3>📐 Scaling logic</h3>
+      <div style="font-size:13px;color:#8b8fa8;line-height:1.8">
+        Pods = estimated RPS / throughput-per-pod. At ${userLabel} users assuming ~50 req/s per pod.<br>
+        HPA watches CPU (>70%) and memory (>80%). Scale-up: +1 pod every 15s. Scale-down: after 5 min cooldown.<br>
+        L4 load balancing at Service level (round-robin TCP). L7 at Ingress (path/host routing, SSL termination).
+      </div>
+    </div>`;
+
+  // ── Cloud + Cost tab ─────────────────────────────────────────────────────────
+  const c = r.cloud;
+  const cost = r.cost;
+  const total = cost.compute + cost.database + cost.storage + cost.loadbalancer;
+  document.getElementById('tab-cloud').innerHTML = `
+    <div class="res-card">
+      <h3>☁️ Cloud recommendation</h3>
+      <div style="margin-bottom:10px">
+        <span class="badge badge-blue">${c.provider}</span>
+        <span class="badge badge-green">${c.use_kubernetes ? '✓ Kubernetes' : 'VM / Compose'}</span>
+      </div>
+      <div style="font-size:13px;color:#8b8fa8;line-height:1.7;margin-bottom:12px">${c.justification}</div>
+      <div style="font-size:13px">
+        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #2e3147"><span style="color:#8b8fa8">Compute</span><span>${c.service_compute}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #2e3147"><span style="color:#8b8fa8">Database</span><span>${c.service_db}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #2e3147"><span style="color:#8b8fa8">Cache</span><span>${c.service_cache}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:#8b8fa8">Load Balancer</span><span>${c.service_lb}</span></div>
+      </div>
+    </div>
+    <div class="res-card">
+      <h3>💰 Monthly cost estimate (USD)</h3>
+      <div class="cost-row"><span>Compute (nodes/pods)</span><span>$${cost.compute.toLocaleString()}</span></div>
+      <div class="cost-row"><span>Database (managed)</span><span>$${cost.database.toLocaleString()}</span></div>
+      <div class="cost-row"><span>Storage</span><span>$${cost.storage.toLocaleString()}</span></div>
+      <div class="cost-row"><span>Load balancer</span><span>$${cost.loadbalancer.toLocaleString()}</span></div>
+      <div class="cost-row"><span>Total estimate</span><span>$${total.toLocaleString()}/mo</span></div>
+      <div style="margin-top:12px;padding:10px;background:#0a0c12;border-radius:8px;font-size:12px;color:#8b8fa8">
+        📊 ~100 users: ~$${cost.small_monthly}/mo &nbsp;|&nbsp; ~10K users: ~$${cost.medium_monthly}/mo &nbsp;|&nbsp; ~1M users: ~$${cost.large_monthly}/mo
+      </div>
+    </div>`;
+
+  // ── K8s tab ──────────────────────────────────────────────────────────────────
+  k8sText = buildYaml(r.k8s, r.sizing);
+  document.getElementById('tab-k8s').innerHTML = `
+    <div class="res-card">
+      <h3>☸️ Kubernetes YAML files <button class="copy-btn" onclick="copyYaml()">📋 copy all</button></h3>
+      <pre class="code">${esc(k8sText)}</pre>
+    </div>`;
+
+  // ── Diagram tab ──────────────────────────────────────────────────────────────
+  document.getElementById('tab-diagram').innerHTML = `
+    <div class="res-card">
+      <h3>🗺 Architecture diagram</h3>
+      <pre class="code" style="line-height:2">${esc(r.diagram.replace(/\\n/g,'\n'))}</pre>
+    </div>`;
+}
+
+function copyYaml() {
+  navigator.clipboard.writeText(k8sText).catch(()=>{});
+  document.querySelector('.copy-btn').textContent = '✓ copied!';
+  setTimeout(()=>{ document.querySelector('.copy-btn') && (document.querySelector('.copy-btn').textContent='📋 copy all') },2000);
+}
+
+function buildYaml(k, s) {
+  const name = k.app_name || 'my-app';
+  const ns   = k.namespace  || 'production';
+  return `# deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${name}-frontend
+  namespace: ${ns}
+spec:
+  replicas: ${k.frontend_replicas}
+  selector:
+    matchLabels:
+      app: ${name}-frontend
+  template:
+    metadata:
+      labels:
+        app: ${name}-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: ${k.frontend_image}
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: "${k.frontend_cpu_req}"
+            memory: "${k.frontend_mem_req}"
+          limits:
+            cpu: "${k.frontend_cpu_lim}"
+            memory: "${k.frontend_mem_lim}"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${name}-backend
+  namespace: ${ns}
+spec:
+  replicas: ${k.backend_replicas}
+  selector:
+    matchLabels:
+      app: ${name}-backend
+  template:
+    metadata:
+      labels:
+        app: ${name}-backend
+    spec:
+      containers:
+      - name: backend
+        image: ${k.backend_image}
+        ports:
+        - containerPort: 3000
+        resources:
+          requests:
+            cpu: "${k.backend_cpu_req}"
+            memory: "${k.backend_mem_req}"
+          limits:
+            cpu: "${k.backend_cpu_lim}"
+            memory: "${k.backend_mem_lim}"
+        env:
+        - name: NODE_ENV
+          value: "production"
+---
+# service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${name}-frontend-svc
+  namespace: ${ns}
+spec:
+  selector:
+    app: ${name}-frontend
+  ports:
+  - port: 80
+    targetPort: 80
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${name}-backend-svc
+  namespace: ${ns}
+spec:
+  selector:
+    app: ${name}-backend
+  ports:
+  - port: 3000
+    targetPort: 3000
+  type: ClusterIP
+---
+# ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ${name}-ingress
+  namespace: ${ns}
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: ${k.ingress_host}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ${name}-frontend-svc
+            port:
+              number: 80
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: ${name}-backend-svc
+            port:
+              number: 3000
+---
+# hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ${name}-backend-hpa
+  namespace: ${ns}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ${name}-backend
+  minReplicas: ${k.hpa_min}
+  maxReplicas: ${k.hpa_max}
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: ${k.hpa_cpu_threshold}
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80`;
+}
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>
