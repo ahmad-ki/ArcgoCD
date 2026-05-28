@@ -7,9 +7,9 @@ spec:
   project: default
 
   source:
-    repoURL: https://github.com/ahmadki123/ArcgoCD/arch-builder.git
+    repoURL: https://github.com/ahmad-ki/ArgoCD.git
     targetRevision: main
-    path: k8s                          # folder containing all YAML files
+    path: arch-builder/k8s                          # folder containing all YAML files
 
   destination:
     server: https://kubernetes.default.svc
