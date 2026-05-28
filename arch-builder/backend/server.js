@@ -134,7 +134,7 @@ function computeArchitecture(input) {
   const appSlug = appType.toLowerCase().replace(/[^a-z0-9]/g, '-');
   const k8s = {
     app_name: appSlug,
-    namespace: 'production',
+    namespace: 'default',
     frontend_image: `yourdockerhub/${appSlug}-frontend:latest`,
     backend_image:  `yourdockerhub/${appSlug}-backend:latest`,
     frontend_replicas: sizing.frontend_pods,

@@ -86,7 +86,7 @@ spec:
             memory: "1Gi"
         env:
         - name: NODE_ENV
-          value: "production"
+          value: "default"   # ✅ FIXED (was production)
         - name: PORT
           value: "3000"
         livenessProbe:

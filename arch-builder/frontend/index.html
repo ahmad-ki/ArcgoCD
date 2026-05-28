@@ -496,7 +496,7 @@ function copyYaml() {
 
 function buildYaml(k, s) {
   const name = k.app_name || 'my-app';
-  const ns   = k.namespace  || 'production';
+  const ns   = k.namespace  || 'default';
   return `# deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -555,7 +555,7 @@ spec:
             memory: "${k.backend_mem_lim}"
         env:
         - name: NODE_ENV
-          value: "production"
+          value: "default"
 ---
 # service.yaml
 apiVersion: v1
