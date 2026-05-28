@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: shooting-game
+  namespace: default
 spec:
   replicas: 3
   selector:
@@ -16,14 +17,14 @@ spec:
       - name: shooting-game
         image: ahmadki123/shooting-game:latest
 
-        env: ✅ (THIS IS THE RIGHT PLACE)
+        ports:
+        - containerPort: 80
+
+        env:
         - name: POD_NAME
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
-
-        ports:
-        - containerPort: 80
 
         readinessProbe:
           httpGet:
