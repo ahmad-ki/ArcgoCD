@@ -112,7 +112,7 @@ function computeArchitecture(input) {
     use_kubernetes: true,
     service_compute: 'Managed Kubernetes (AKS / EKS)',
     service_db: 'Managed Distributed Database',
-    justification: recommendations.join(' ')
+    justifyinter: recommendations.join(' ')
   };
 
   const cost = {
@@ -121,7 +121,7 @@ function computeArchitecture(input) {
 
   const k8s = {
     app_name: 'pro-app',
-    namespace: 'production',
+    namespace: 'default',
     gitops_tool: components.gitops,
     backend_image: 'registry.enterprise.com/backend:latest',
     hpa_min: minPods,
@@ -187,6 +187,56 @@ app.post('/api/architecture', (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// Fixed buildArgoCdYaml to provide full schema-compliant Kubernetes deployment spec selectors
+function buildArgoCdYaml(k) {
+  return `apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ${k.app_name}-platform
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/enterprise/platform-manifests.git'
+    path: kustomize/${k.app_name}/overlays/production
+    targetRevision: HEAD
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: ${k.namespace}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: arch-builder-backend
+  namespace: ${k.namespace}
+spec:
+  replicas: ${k.hpa_min}
+  selector:
+    matchLabels:
+      app: arch-builder-backend
+  template:
+    metadata:
+      labels:
+        app: arch-builder-backend
+    spec:
+      containers:
+      - name: api
+        image: ${k.backend_image}
+        ports:
+        - containerPort: 3000
+        resources:
+          limits:
+            cpu: "${k.cpu_lim}"
+            memory: "${k.mem_lim}"
+`;
+}
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Pro Architecture API running on :${PORT}`));
