@@ -1,11 +1,12 @@
+# Frontend Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: arch-builder-frontend
-  namespace: default   # ✅ unchanged
+  namespace: default
   labels:
     app: arch-builder-frontend
-    version: "1.0"
+    version: "2.0"
 spec:
   replicas: 2
   selector:
@@ -46,16 +47,16 @@ spec:
             port: 80
           initialDelaySeconds: 3
           periodSeconds: 5
-
 ---
+# Backend Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: arch-builder-backend
-  namespace: default   # ✅ FIXED (was production)
+  namespace: default
   labels:
     app: arch-builder-backend
-    version: "1.0"
+    version: "2.0"
 spec:
   replicas: 3
   selector:
@@ -86,7 +87,7 @@ spec:
             memory: "1Gi"
         env:
         - name: NODE_ENV
-          value: "default"   # ✅ FIXED (was production)
+          value: "production"
         - name: PORT
           value: "3000"
         livenessProbe:

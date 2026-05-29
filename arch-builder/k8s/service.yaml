@@ -2,11 +2,13 @@ apiVersion: v1
 kind: Service
 metadata:
   name: arch-builder-frontend-svc
+  namespace: default
 spec:
   selector:
     app: arch-builder-frontend
   ports:
-  - port: 80
+  - name: http
+    port: 80
     targetPort: 80
   type: ClusterIP
 ---
@@ -14,10 +16,12 @@ apiVersion: v1
 kind: Service
 metadata:
   name: arch-builder-backend-svc
+  namespace: default
 spec:
   selector:
     app: arch-builder-backend
   ports:
-  - port: 3000
+  - name: api
+    port: 3000
     targetPort: 3000
   type: ClusterIP

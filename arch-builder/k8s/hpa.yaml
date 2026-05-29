@@ -16,22 +16,22 @@ spec:
       name: cpu
       target:
         type: Utilization
-        averageUtilization: 70     # scale up when pods avg > 70% CPU
+        averageUtilization: 70
   - type: Resource
     resource:
       name: memory
       target:
         type: Utilization
-        averageUtilization: 80     # scale up when pods avg > 80% RAM
+        averageUtilization: 80
   behavior:
     scaleUp:
       stabilizationWindowSeconds: 0
       policies:
       - type: Pods
         value: 2
-        periodSeconds: 15          # add up to 2 pods every 15s during spike
+        periodSeconds: 15
     scaleDown:
-      stabilizationWindowSeconds: 300  # 5 min cooldown before scaling down
+      stabilizationWindowSeconds: 300
       policies:
       - type: Pods
         value: 1

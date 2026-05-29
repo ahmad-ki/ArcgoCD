@@ -488,9 +488,7 @@
 
 <script>
 // ─── State ───────────────────────────────────────────────────────────────────
-const API = window.location.hostname === 'localhost'
-  ? 'http://localhost:3000/api/architecture'
-  : '/api/architecture';
+const API = '/api/architecture';
 
 const USER_LEVELS = ['100','1K','10K','100K','1M'];
 let k8sRaw = '';
