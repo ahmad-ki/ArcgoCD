@@ -282,7 +282,7 @@ input[type=range] {
     <h1>Smart Architecture Advisor</h1>
     <p>Define requirements → architecture + sizing + cost + Kubernetes YAML</p>
   </div>
-  <span class="v-badge">v2.0</span>
+  <span class="v-badge">v2.9</span>
 </header>
 
 <main>
@@ -428,7 +428,7 @@ input[type=range] {
   </div>
 
   <!-- Row 5: Cloud preference -->
-  <div class="section">
+  <div class="section" id="cloud-section">
     <div class="section-header"><span class="dot" style="background:var(--green)"></span> Cloud Preference</div>
     <div class="pills" data-single="true">
       <div class="pill on c-blue" data-v="Azure">Azure</div>
@@ -568,7 +568,7 @@ function collectInput() {
     region:         getGroup('#form-section .section:nth-child(5) .field:nth-child(2) .pills')[0] || 'local',
     budget:         getGroup('#form-section .section:nth-child(5) .field:nth-child(3) .pills')[0] || 'medium',
     workloads:      Array.from(document.querySelectorAll('[data-multi="true"] .pill.on')).map(p => p.dataset.v),
-    cloud:          Array.from(document.querySelectorAll('#form-section .section:last-of-type .pill.on')).map(p => p.dataset.v)[0] || 'Azure',
+    cloud: getGroup('#cloud-section .pills')[0] || 'Azure',
   };
 }
 
