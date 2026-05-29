@@ -183,8 +183,21 @@ function buildMermaid(arch, sizing, flags, input) {
 // ─── Main compute function (V2) ────────────────────────────────────────────────
 function computeArchitectureV2(input) {
   // ── V1 base fields ──
-  const { users = '10K', appType = 'E-commerce', appTier = 'Dynamic application',
-          workloads = [], cloud = 'Azure' } = input;
+  let { users = '10K', appType = 'E-commerce', appTier = 'Dynamic application',
+      workloads = [], cloud = 'Azure' } = input;
+
+
+// ✅ FIX: normalize cloud value (THIS FIXES YOUR BUG)
+if (!cloud) cloud = 'Azure';
+
+const c = cloud.toString().toLowerCase().trim();
+
+if (c.includes('aws')) cloud = 'AWS';
+else if (c.includes('gcp')) cloud = 'GCP';
+else if (c.includes('on')) cloud = 'On-premise / Local';
+else if (c.includes('auto')) cloud = 'Best fit (auto)';
+else cloud = 'Azure';
+
 
   const scale = clamp(['100','1K','10K','100K','1M'].indexOf(users), 0, 4);
   const flags = applyV2Rules(input);
@@ -195,10 +208,22 @@ function computeArchitectureV2(input) {
   const needsQueue = flags.needsQueue || workloads.includes('File uploads (PDF/images)') || workloads.includes('Write-heavy');
   const needsCDN = flags.needsCDN || appTier === 'Static website' || scale >= 2;
 
-  const selectedCloud = (cloud === 'Best fit (auto)' || cloud === 'Best recommendation (auto)')
-    ? (input.region === 'global' ? 'Azure' : scale >= 3 ? 'Azure' : 'AWS')
-    : cloud;
+  let selectedCloud;
 
+if (cloud === 'Best fit (auto)' || cloud === 'Best recommendation (auto)') {
+  if (input.region === 'global') {
+    selectedCloud = 'AWS';
+  } else if (scale >= 3) {
+    selectedCloud = 'Azure';
+  } else {
+    selectedCloud = 'AWS';
+  }
+} else {
+  selectedCloud = cloud;
+}
+console.log("Incoming cloud:", input.cloud);
+console.log("Normalized cloud:", cloud);
+console.log("Selected cloud:", selectedCloud);
   const arch = {
     frontend: appTier === 'Static website'
       ? 'Static HTML/JS (Object Storage + CDN)'
