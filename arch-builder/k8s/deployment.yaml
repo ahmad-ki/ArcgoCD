@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: ahmadki123/arch-builder-frontend:latest
+        image: ahmadki123/arch-builder-frontend:v2
         imagePullPolicy: Always
         ports:
         - containerPort: 80
