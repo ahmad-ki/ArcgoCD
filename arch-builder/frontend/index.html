@@ -93,11 +93,13 @@
 
     /* ── Slider ── */
     .slider-wrap { display: flex; align-items: center; gap: 10px; }
-    input[type=range] {
-      flex: 1; -webkit-appearance: none;
-      height: 4px; border-radius: 2px;
-      background: var(--border2); outline: none;
-    }
+    
+input[type=range] {
+  flex: 1;
+  appearance: none;         /* standard */
+  -webkit-appearance: none; /* for WebKit browsers */
+}
+
     input[type=range]::-webkit-slider-thumb {
       -webkit-appearance: none; width: 16px; height: 16px;
       border-radius: 50%; background: var(--blue); cursor: pointer;
