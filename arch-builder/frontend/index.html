@@ -1,409 +1,963 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Enterprise Architecture Builder Pro</title>
-  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smart Architecture Advisor v2</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #090a0f;
-      --surface: #13151f;
-      --surface2: #1e2130;
-      --border: #282c3f;
-      --text: #f0f2f8;
-      --muted: #848a9e;
-      --accent: #6366f1;
-      --accent-hover: #4f46e5;
-      --accent2: #10b981;
-      --danger: #ef4444;
-      --font: 'Inter', system-ui, sans-serif;
-      --mono: 'JetBrains Mono', 'Fira Code', monospace;
+      --bg:       #0d0f18;
+      --s1:       #131620;
+      --s2:       #1a1e2e;
+      --s3:       #222640;
+      --border:   #2a2f4a;
+      --border2:  #3a4060;
+      --text:     #dde2f0;
+      --muted:    #7b82a0;
+      --dim:      #4a5070;
+      --blue:     #5b8dee;
+      --green:    #36c98e;
+      --amber:    #f0a050;
+      --red:      #e05555;
+      --purple:   #b070e0;
+      --font:     'Segoe UI', system-ui, sans-serif;
+      --mono:     'Cascadia Code', 'Fira Code', monospace;
+      --r:        10px;
+      --r-sm:     6px;
     }
 
-    body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; font-size: 14px; line-height: 1.5; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; min-height: 100vh; }
 
-    header { background: rgba(19, 21, 31, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 1.25rem 2rem; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 100; }
-    header svg { color: var(--accent); }
-    header h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.5px; }
-    header p  { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    /* ── Header ── */
+    header {
+      background: var(--s1);
+      border-bottom: 1px solid var(--border);
+      padding: 0.9rem 2rem;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #1a3a6a, #2a6a4a); border-radius: 8px; display:flex; align-items:center; justify-content:center; font-size: 18px; }
+    header h1 { font-size: 17px; font-weight: 600; letter-spacing: -0.3px; }
+    header p  { font-size: 12px; color: var(--muted); margin-top: 1px; }
+    .v-badge { margin-left: auto; padding: 3px 10px; background: var(--s3); border: 1px solid var(--border2); border-radius: 20px; font-size: 11px; font-weight: 600; color: var(--blue); }
 
-    main { max-width: 1100px; margin: 0 auto; padding: 2.5rem 2rem; }
+    /* ── Layout ── */
+    main { max-width: 1020px; margin: 0 auto; padding: 1.5rem 1.5rem 3rem; }
 
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-    @media(max-width:768px){ .grid { grid-template-columns:1fr; } }
+    /* ── Section card ── */
+    .section {
+      background: var(--s1);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1.2rem 1.4rem;
+      margin-bottom: 1rem;
+    }
+    .section-header {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.8px; color: var(--muted); margin-bottom: 14px;
+    }
+    .section-header .dot { width: 6px; height: 6px; border-radius: 50%; }
 
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
-    .card-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px; display: flex; align-items: center; gap: 8px;}
+    /* ── Form grid ── */
+    .form-grid    { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-grid-3  { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+    @media(max-width: 640px) {
+      .form-grid, .form-grid-3 { grid-template-columns: 1fr; }
+    }
 
-    label { font-size: 13px; font-weight: 500; color: #a1a5b8; display: block; margin-bottom: 10px; margin-top: 18px;}
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label { font-size: 12px; color: var(--muted); }
 
-    .pills { display: flex; flex-wrap: wrap; gap: 8px; }
-    .pill { padding: 6px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-    .pill:hover { border-color: var(--accent); background: rgba(99, 102, 241, 0.1); }
-    .pill.on { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 0 12px rgba(99, 102, 241, 0.3); }
+    /* ── Pills ── */
+    .pills { display: flex; flex-wrap: wrap; gap: 5px; }
+    .pill {
+      padding: 4px 11px; border-radius: 20px;
+      border: 1px solid var(--border2); background: transparent;
+      color: var(--text); font-size: 12px; cursor: pointer;
+      transition: all 0.1s; user-select: none;
+      font-family: var(--font);
+    }
+    .pill:hover { border-color: var(--blue); color: var(--blue); }
+    .pill.on { border-color: transparent; }
 
-    .btn-gen { width: 100%; margin-top: 2rem; padding: 16px; background: linear-gradient(135deg, var(--accent), var(--accent-hover)); color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.1s, box-shadow 0.2s; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
-    .btn-gen:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4); }
-    .btn-gen:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    /* color variants */
+    .pill.on.c-blue   { background: #1a2d4d; color: #7ab0f5; border-color: #2a4a7a; }
+    .pill.on.c-green  { background: #0f2d20; color: #50d8a0; border-color: #1a4a33; }
+    .pill.on.c-amber  { background: #2d1e0a; color: #f0b070; border-color: #5a3a12; }
+    .pill.on.c-purple { background: #1e0f2d; color: #c090e8; border-color: #3a1a5a; }
+    .pill.on.c-red    { background: #2d1010; color: #e87070; border-color: #5a2020; }
+    .pill.on { background: #1a2d4d; color: #7ab0f5; border-color: #2a4a7a; } /* default */
 
-    /* Results Interface */
-    #results { display: none; animation: fadeIn 0.4s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    /* ── Slider ── */
+    .slider-wrap { display: flex; align-items: center; gap: 10px; }
+    input[type=range] {
+      flex: 1; -webkit-appearance: none;
+      height: 4px; border-radius: 2px;
+      background: var(--border2); outline: none;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 16px; height: 16px;
+      border-radius: 50%; background: var(--blue); cursor: pointer;
+    }
+    .slider-val { font-size: 13px; font-weight: 700; min-width: 56px; text-align: right; color: var(--blue); }
 
-    .res-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-    
-    .res-tabs { display: flex; gap: 4px; background: var(--surface); padding: 4px; border-radius: 10px; border: 1px solid var(--border); }
-    .rtab { padding: 8px 20px; font-size: 13px; font-weight: 500; background: transparent; border: none; border-radius: 6px; color: var(--muted); cursor: pointer; transition: all 0.2s; }
-    .rtab:hover { color: var(--text); }
-    .rtab.active { background: var(--surface2); color: var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    /* ── SLA pills with special colors ── */
+    [data-group="sla"] .pill.on { background: #2d1010; color: #e87070; border-color: #5a2020; }
+    [data-group="sla"] .pill[data-v="95%"].on   { background: #0f2d20; color: #50d8a0; border-color: #1a4a33; }
+    [data-group="sla"] .pill[data-v="99%"].on   { background: #1a2d4d; color: #7ab0f5; border-color: #2a4a7a; }
+    [data-group="sla"] .pill[data-v="99.9%"].on { background: #2d1e0a; color: #f0b070; border-color: #5a3a12; }
+    [data-group="sla"] .pill[data-v="99.99%"].on{ background: #2d1010; color: #e87070; border-color: #5a2020; }
 
-    .rpanel { display: none; }
-    .rpanel.active { display: block; animation: fadeIn 0.3s ease; }
+    /* ── Generate button ── */
+    .btn-gen {
+      width: 100%; padding: 13px;
+      background: var(--blue); color: #fff; border: none;
+      border-radius: var(--r); font-size: 15px; font-weight: 600;
+      cursor: pointer; margin-top: 0.5rem; transition: opacity 0.15s;
+      font-family: var(--font); letter-spacing: -0.2px;
+    }
+    .btn-gen:hover { opacity: 0.87; }
+    .btn-gen:disabled { opacity: 0.35; cursor: not-allowed; }
 
-    .res-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; }
-    .res-card h3 { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;}
+    /* ── Results ── */
+    #results { display: none; margin-top: 0; }
+    .results-meta {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.2rem;
+    }
+    .meta-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .mtag { padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .mtag-blue   { background: #1a2d4d; color: #7ab0f5; }
+    .mtag-green  { background: #0f2d20; color: #50d8a0; }
+    .mtag-amber  { background: #2d1e0a; color: #f0b070; }
+    .mtag-red    { background: #2d1010; color: #e87070; }
+    .mtag-purple { background: #1e0f2d; color: #c090e8; }
 
-    .metrics { display: grid; grid-template-columns: repeat(auto-fit,minmax(140px,1fr)); gap: 12px; margin-bottom: 16px; }
-    .metric { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
-    .metric-label { font-size: 12px; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .metric-val { font-size: 24px; font-weight: 700; color: var(--accent2); }
+    .btn-reset {
+      padding: 5px 14px; font-size: 12px; background: none;
+      border: 1px solid var(--border2); border-radius: var(--r-sm);
+      color: var(--muted); cursor: pointer; font-family: var(--font);
+    }
+    .btn-reset:hover { border-color: var(--green); color: var(--green); }
 
-    pre.code { background: #000; border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; font-family: var(--mono); font-size: 13px; line-height: 1.6; overflow-x: auto; color: #a5b4fc; }
+    /* ── Tabs ── */
+    .tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 1.2rem; gap: 0; }
+    .tab {
+      padding: 8px 16px; font-size: 13px; background: none; border: none;
+      color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent;
+      margin-bottom: -1px; transition: color 0.1s; font-family: var(--font);
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--blue); border-bottom-color: var(--blue); font-weight: 500; }
 
-    .arch-row { display: flex; gap: 16px; align-items: flex-start; padding: 14px; background: var(--surface2); border: 1px solid rgba(255,255,255,0.02); border-radius: 12px; margin-bottom: 8px; transition: background 0.2s; }
-    .arch-row:hover { background: rgba(99, 102, 241, 0.05); }
-    .arch-icon { font-size: 22px; flex-shrink: 0; background: var(--surface); padding: 8px; border-radius: 8px; border: 1px solid var(--border); }
-    .arch-label { font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--muted); letter-spacing: 0.5px; }
-    .arch-val { font-size: 14px; font-weight: 500; color: var(--text); margin-top: 4px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
 
-    .loading { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 4rem; color: var(--muted); font-size: 15px; }
-    .spinner { width: 40px; height: 40px; border: 3px solid var(--surface2); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    /* ── Result card ── */
+    .res-card {
+      background: var(--s1); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 1.2rem 1.4rem; margin-bottom: 1rem;
+    }
+    .res-card h3 { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); margin-bottom: 12px; }
 
-    .action-btn { padding: 6px 14px; font-size: 12px; font-weight: 600; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); cursor: pointer; transition: all 0.2s; }
-    .action-btn:hover { border-color: var(--accent); color: var(--accent); }
-    
-    .mermaid { background: #fff; padding: 30px; border-radius: 12px; overflow-x: auto; display: flex; justify-content: center; border: 1px solid var(--border); }
+    /* ── Metric grid ── */
+    .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; margin-bottom: 12px; }
+    .metric { background: var(--s2); border-radius: var(--r-sm); padding: 10px 12px; }
+    .metric-label { font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+    .metric-val { font-size: 22px; font-weight: 700; color: var(--green); }
+    .metric-sub { font-size: 10px; color: var(--muted); margin-top: 1px; }
+
+    /* ── Arch rows ── */
+    .arch-row {
+      display: flex; gap: 10px; align-items: flex-start;
+      padding: 8px 10px; background: var(--s2);
+      border-radius: var(--r-sm); margin-bottom: 6px;
+      border-left: 3px solid var(--border);
+    }
+    .arch-row.fe { border-left-color: var(--green); }
+    .arch-row.be { border-left-color: var(--amber); }
+    .arch-row.db { border-left-color: var(--purple); }
+    .arch-row.ca { border-left-color: #e8c030; }
+    .arch-row.qu { border-left-color: var(--red); }
+    .arch-row.cd { border-left-color: var(--blue); }
+    .arch-row.au { border-left-color: #80c0ff; }
+    .arch-row.ha { border-left-color: var(--red); }
+    .arch-icon { font-size: 17px; flex-shrink: 0; margin-top: 1px; }
+    .arch-label { font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.4px; }
+    .arch-val { font-size: 13px; color: var(--text); margin-top: 2px; }
+
+    /* ── Recommendations ── */
+    .rec {
+      display: flex; gap: 10px; padding: 9px 11px;
+      border-radius: var(--r-sm); margin-bottom: 6px;
+      border-left: 3px solid;
+    }
+    .rec.critical { background: #1e0a0a; border-left-color: var(--red); }
+    .rec.warning  { background: #1e180a; border-left-color: var(--amber); }
+    .rec.info     { background: #0a1020; border-left-color: var(--blue); }
+    .rec-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+    .rec-level { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+    .rec.critical .rec-level { color: var(--red); }
+    .rec.warning  .rec-level { color: var(--amber); }
+    .rec.info     .rec-level { color: var(--blue); }
+    .rec-text { font-size: 13px; color: var(--text); line-height: 1.5; }
+
+    /* ── Cost ── */
+    .cost-row {
+      display: flex; justify-content: space-between;
+      padding: 7px 0; border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .cost-row:last-child { border: none; font-weight: 700; padding-top: 12px; font-size: 15px; }
+    .cost-row span:last-child { color: var(--green); font-weight: 600; }
+    .cost-row:last-child span:last-child { color: var(--green); font-size: 17px; }
+    .cost-scale {
+      margin-top: 12px; padding: 10px 12px;
+      background: var(--s2); border-radius: var(--r-sm);
+      font-size: 12px; color: var(--muted); line-height: 1.9;
+    }
+
+    /* ── Cloud services table ── */
+    .svc-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+    .svc-row:last-child { border: none; }
+    .svc-label { color: var(--muted); }
+    .svc-val { color: var(--text); font-weight: 500; text-align: right; max-width: 55%; }
+
+    /* ── Mermaid ── */
+    .mermaid-wrap {
+      background: var(--s2); border: 1px solid var(--border);
+      border-radius: var(--r-sm); padding: 1.5rem;
+      overflow-x: auto; min-height: 180px;
+    }
+    .mermaid-wrap svg { max-width: 100%; }
+    .mermaid-src {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--r-sm); padding: 1rem;
+      font-family: var(--mono); font-size: 12px; line-height: 1.7;
+      color: var(--muted); white-space: pre; overflow-x: auto;
+      margin-top: 10px;
+    }
+
+    /* ── Loading ── */
+    .loading { display: flex; align-items: center; gap: 10px; padding: 2.5rem 1rem; color: var(--muted); font-size: 14px; }
+    .dots span { display:inline-block; width:7px; height:7px; border-radius:50%; background: var(--blue); margin:0 2px; animation: blink 1s infinite; }
+    .dots span:nth-child(2) { animation-delay: .2s; }
+    .dots span:nth-child(3) { animation-delay: .4s; }
+    @keyframes blink { 0%,100%{opacity:.15} 50%{opacity:1} }
+
+    /* ── K8s YAML ── */
+    pre.yaml {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--r-sm); padding: 1rem;
+      font-family: var(--mono); font-size: 11.5px; line-height: 1.75;
+      overflow-x: auto; white-space: pre; color: #8899cc;
+    }
+    pre.yaml .y-key   { color: #7ab0f5; }
+    pre.yaml .y-val   { color: #c090e8; }
+    pre.yaml .y-str   { color: #50d8a0; }
+    pre.yaml .y-num   { color: #f0b070; }
+    pre.yaml .y-comm  { color: #445566; }
+    .copy-btn {
+      float: right; padding: 3px 9px; font-size: 11px;
+      background: none; border: 1px solid var(--border2);
+      border-radius: var(--r-sm); color: var(--muted); cursor: pointer;
+      font-family: var(--font);
+    }
+    .copy-btn:hover { border-color: var(--blue); color: var(--blue); }
+
+    /* ── No rec empty ── */
+    .empty-recs { color: var(--muted); font-size: 13px; padding: 1rem 0; text-align: center; }
   </style>
 </head>
 <body>
 
 <header>
-  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-    <polyline points="2 17 12 22 22 17"></polyline>
-    <polyline points="2 12 12 17 22 12"></polyline>
-  </svg>
+  <div class="logo-icon">🏗</div>
   <div>
-    <h1>Enterprise Architecture Builder <span style="color:var(--accent2); font-size:14px; vertical-align:middle; margin-left:8px; border:1px solid var(--accent2); padding:2px 6px; border-radius:4px;">PRO</span></h1>
-    <p>Advanced topology mapping, GitOps manifests, and MLOps integrations</p>
+    <h1>Smart Architecture Advisor</h1>
+    <p>Define requirements → architecture + sizing + cost + Kubernetes YAML</p>
   </div>
+  <span class="v-badge">v2.0</span>
 </header>
 
 <main>
-  <div id="form-section">
-    <div class="grid">
-      <div>
-        <div class="card">
-          <div class="card-title">⚙️ Performance & Profile</div>
-          
-          <label>Workload Type</label>
-          <div class="pills" id="workload-input">
-            <div class="pill on" data-v="standard">Standard Web API</div>
-            <div class="pill" data-v="data">High I/O Data</div>
-            <div class="pill" data-v="ai_ml">AI Inference / MLOps</div>
-          </div>
 
-          <label>SLA Target</label>
-          <div class="pills" id="sla-input">
-            <div class="pill" data-v="99">99.0%</div>
-            <div class="pill on" data-v="99.9">99.9% (Enterprise)</div>
-            <div class="pill" data-v="99.99">99.99% (Mission Critical)</div>
-          </div>
+<!-- ═══ FORM ════════════════════════════════════════════════════════════════ -->
+<div id="form-section">
 
-          <label>Traffic Pattern</label>
-          <div class="pills" id="traffic-input">
-            <div class="pill on" data-v="constant">Predictable / Constant</div>
-            <div class="pill" data-v="burst">Highly Volatile Burst</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">🔒 Security & Network</div>
-          
-          <label>Authentication Model</label>
-          <div class="pills" id="auth-input">
-            <div class="pill" data-v="basic">Standard JWT</div>
-            <div class="pill on" data-v="SSO">Enterprise OIDC / SSO</div>
-          </div>
-
-          <label>Deployment Region</label>
-          <div class="pills" id="region-input">
-            <div class="pill on" data-v="local">Single Region (Multi-AZ)</div>
-            <div class="pill" data-v="global">Multi-Region Active-Active</div>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <div class="card">
-          <div class="card-title">🏗 Architecture Profile</div>
-          
-          <label>Architecture Pattern</label>
-          <div class="pills" id="arch-input">
-            <div class="pill" data-v="monolith">Modular Monolith</div>
-            <div class="pill on" data-v="microservices">Event-Driven Microservices</div>
-          </div>
-
-          <label>Data Volume</label>
-          <div class="pills" id="data-input">
-            <div class="pill" data-v="medium">Medium (&lt; 1TB)</div>
-            <div class="pill on" data-v="large">Large / Petabyte Scale</div>
-          </div>
-
-          <label>Database Consistency</label>
-          <div class="pills" id="consistency-input">
-            <div class="pill on" data-v="SQL">ACID Strict (Relational)</div>
-            <div class="pill" data-v="NoSQL">Eventual (Document/Wide-Column)</div>
-          </div>
+  <!-- Row 1: Scale + App type -->
+  <div class="form-grid">
+    <div class="section">
+      <div class="section-header"><span class="dot" style="background:var(--blue)"></span> Scale</div>
+      <div class="field">
+        <label>Concurrent users</label>
+        <div class="slider-wrap">
+          <input type="range" id="users-slider" min="0" max="4" step="1" value="1"
+            oninput="document.getElementById('users-disp').textContent=['100','1K','10K','100K','1M'][this.value]">
+          <span class="slider-val" id="users-disp">1K</span>
         </div>
       </div>
     </div>
 
-    <button class="btn-gen" id="gen-btn" onclick="generate()">
-      Compute Platform Architecture
-    </button>
-  </div>
-
-  <div id="results">
-    <div class="res-header">
-      <div class="res-tabs" role="tablist">
-        <button class="rtab active" onclick="switchTab('diagram')">Topology Map</button>
-        <button class="rtab" onclick="switchTab('arch')">Stack Components</button>
-        <button class="rtab" onclick="switchTab('sizing')">Capacity Sizing</button>
-        <button class="rtab" onclick="switchTab('k8s')">GitOps Manifests</button>
-      </div>
-      <button class="action-btn" onclick="resetForm()">↺ Reconfigure</button>
-    </div>
-
-    <div id="loading" class="loading">
-      <div class="spinner"></div>
-      <div>Provisioning enterprise blueprint...</div>
-    </div>
-
-    <div id="result-content" style="display:none">
-      
-      <div id="tab-diagram" class="rpanel active">
-        <div class="res-card">
-          <h3>🗺️ Network & Infrastructure Topology <button class="action-btn" onclick="downloadSVG()">Download SVG</button></h3>
-          <div class="mermaid" id="mermaid-render-div"></div>
+    <div class="section">
+      <div class="section-header"><span class="dot" style="background:var(--green)"></span> SLA Target</div>
+      <div class="field">
+        <label>Uptime commitment</label>
+        <div class="pills" data-group="sla" data-single="true">
+          <div class="pill on c-green" data-v="95%">95% · dev/test</div>
+          <div class="pill c-blue"  data-v="99%">99% · standard</div>
+          <div class="pill c-amber" data-v="99.9%">99.9% · HA</div>
+          <div class="pill c-red"   data-v="99.99%">99.99% · mission critical</div>
         </div>
       </div>
-
-      <div id="tab-arch" class="rpanel">
-        <div class="res-card" id="arch-container"></div>
-      </div>
-
-      <div id="tab-sizing" class="rpanel">
-        <div class="res-card" id="sizing-container"></div>
-      </div>
-
-      <div id="tab-k8s" class="rpanel">
-        <div class="res-card">
-          <h3>☸️ Argo CD GitOps Application <button class="action-btn" onclick="downloadYaml()">Download YAML</button></h3>
-          <pre class="code" id="k8s-code"></pre>
-        </div>
-      </div>
-
     </div>
   </div>
+
+  <!-- Row 2: App + Arch -->
+  <div class="section">
+    <div class="section-header"><span class="dot" style="background:var(--amber)"></span> Application</div>
+    <div class="form-grid-3">
+      <div class="field">
+        <label>Business category</label>
+        <div class="pills" data-single="true">
+          <div class="pill on" data-v="E-commerce">E-commerce</div>
+          <div class="pill" data-v="CRM">CRM</div>
+          <div class="pill" data-v="SaaS platform">SaaS</div>
+          <div class="pill" data-v="Document processing">Docs / Files</div>
+          <div class="pill" data-v="Search system">Search</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>App tier</label>
+        <div class="pills" data-single="true">
+          <div class="pill on" data-v="Dynamic application">Dynamic</div>
+          <div class="pill" data-v="Static website">Static</div>
+          <div class="pill" data-v="API-based system">API only</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Architecture style</label>
+        <div class="pills" data-single="true">
+          <div class="pill on c-green" data-v="monolith">Monolith</div>
+          <div class="pill c-amber" data-v="microservices">Microservices</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 3: Traffic + Latency + Data + Consistency -->
+  <div class="section">
+    <div class="section-header"><span class="dot" style="background:var(--purple)"></span> Performance & Data</div>
+    <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1rem;">
+      <div class="field">
+        <label>Traffic pattern</label>
+        <div class="pills" data-single="true">
+          <div class="pill on" data-v="constant">Constant</div>
+          <div class="pill" data-v="peak">Peak hours</div>
+          <div class="pill c-red" data-v="burst">Burst / spiky</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Latency requirement</label>
+        <div class="pills" data-single="true">
+          <div class="pill on" data-v="normal">Normal (&lt;500ms)</div>
+          <div class="pill c-amber" data-v="low">Low (&lt;100ms)</div>
+          <div class="pill c-red" data-v="realtime">Real-time (&lt;20ms)</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Data size</label>
+        <div class="pills" data-single="true">
+          <div class="pill on" data-v="small">Small (&lt;50GB)</div>
+          <div class="pill" data-v="medium">Medium (50–500GB)</div>
+          <div class="pill c-amber" data-v="large">Large (&gt;500GB)</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>DB consistency</label>
+        <div class="pills" data-single="true">
+          <div class="pill on c-blue" data-v="SQL">SQL (strict)</div>
+          <div class="pill c-green" data-v="NoSQL">NoSQL (flexible)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 4: Auth + Region + Budget + Workloads -->
+  <div class="section">
+    <div class="section-header"><span class="dot" style="background:var(--red)"></span> Deployment & Cost</div>
+    <div class="form-grid-3">
+      <div class="field">
+        <label>Auth / identity</label>
+        <div class="pills" data-single="true">
+          <div class="pill on" data-v="none">None</div>
+          <div class="pill c-blue" data-v="basic">JWT / Basic</div>
+          <div class="pill c-purple" data-v="SSO">SSO / OIDC</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Region</label>
+        <div class="pills" data-single="true">
+          <div class="pill on" data-v="local">Single region</div>
+          <div class="pill c-green" data-v="global">Multi-region / global</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Budget</label>
+        <div class="pills" data-single="true">
+          <div class="pill c-green" data-v="low">Low (cost-first)</div>
+          <div class="pill on" data-v="medium">Medium</div>
+          <div class="pill c-amber" data-v="high">High (perf-first)</div>
+        </div>
+      </div>
+    </div>
+    <div class="field" style="margin-top: 14px;">
+      <label>Workload profile <span style="color:var(--dim)">(multi-select)</span></label>
+      <div class="pills" data-multi="true">
+        <div class="pill on" data-v="Read-heavy">Read-heavy</div>
+        <div class="pill" data-v="Write-heavy">Write-heavy</div>
+        <div class="pill" data-v="File uploads (PDF/images)">File uploads</div>
+        <div class="pill" data-v="Real-time APIs">Real-time APIs</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 5: Cloud preference -->
+  <div class="section">
+    <div class="section-header"><span class="dot" style="background:var(--green)"></span> Cloud Preference</div>
+    <div class="pills" data-single="true">
+      <div class="pill on c-blue" data-v="Azure">Azure</div>
+      <div class="pill c-amber" data-v="AWS">AWS</div>
+      <div class="pill c-green" data-v="GCP">GCP</div>
+      <div class="pill c-purple" data-v="On-premise / Local">On-premise</div>
+      <div class="pill" data-v="Best fit (auto)">✨ Auto-select</div>
+    </div>
+  </div>
+
+  <button class="btn-gen" id="gen-btn" onclick="generate()">
+    ⚡ Generate Architecture
+  </button>
+</div>
+
+<!-- ═══ RESULTS ══════════════════════════════════════════════════════════════ -->
+<div id="results">
+
+  <div class="results-meta">
+    <div class="meta-tags" id="meta-tags"></div>
+    <button class="btn-reset" onclick="resetForm()">← New design</button>
+  </div>
+
+  <div id="loading" class="loading" style="display:none">
+    <div class="dots"><span></span><span></span><span></span></div>
+    Computing architecture...
+  </div>
+
+  <div id="result-body" style="display:none">
+    <!-- Summary metric bar -->
+    <div class="res-card" style="padding: 1rem 1.4rem;">
+      <div class="metrics" id="summary-metrics"></div>
+    </div>
+
+    <!-- Recommendations (always visible) -->
+    <div class="res-card" id="recs-card">
+      <h3>🔔 Advisor recommendations</h3>
+      <div id="recs-content"></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs" role="tablist">
+      <button class="tab active" onclick="switchTab('arch')">Architecture</button>
+      <button class="tab" onclick="switchTab('sizing')">Sizing</button>
+      <button class="tab" onclick="switchTab('cloud')">Cloud + Cost</button>
+      <button class="tab" onclick="switchTab('diagram')">Diagram</button>
+      <button class="tab" onclick="switchTab('k8s')">K8s YAML</button>
+    </div>
+
+    <div id="tab-arch"    class="panel active"></div>
+    <div id="tab-sizing"  class="panel"></div>
+    <div id="tab-cloud"   class="panel"></div>
+    <div id="tab-diagram" class="panel"></div>
+    <div id="tab-k8s"     class="panel"></div>
+  </div>
+</div>
+
 </main>
 
 <script>
-mermaid.initialize({ startOnLoad: false, theme: 'default' });
+// ─── State ───────────────────────────────────────────────────────────────────
+const API = window.location.hostname === 'localhost'
+  ? 'http://localhost:3000/api/architecture'
+  : '/api/architecture';
 
-// Fixed to cleanly point straight to the Nginx Reverse Proxy path
-const API = '/api/architecture';
+const USER_LEVELS = ['100','1K','10K','100K','1M'];
+let k8sRaw = '';
 
-let currentYaml = '';
-let currentSvg = '';
+// ─── Mermaid init ─────────────────────────────────────────────────────────────
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'dark',
+  themeVariables: {
+    darkMode: true,
+    background: '#131620',
+    mainBkg: '#1a1e2e',
+    nodeBorder: '#2a2f4a',
+    lineColor: '#5b8dee',
+    primaryTextColor: '#dde2f0',
+    fontFamily: 'Segoe UI, system-ui, sans-serif',
+    fontSize: '13px',
+  }
+});
 
+// ─── Pill interaction ────────────────────────────────────────────────────────
 document.querySelectorAll('.pills').forEach(g => {
+  const single = g.dataset.single === 'true';
   g.querySelectorAll('.pill').forEach(p => {
     p.addEventListener('click', () => {
-      g.querySelectorAll('.pill').forEach(x => x.classList.remove('on'));
-      p.classList.add('on');
+      if (single) g.querySelectorAll('.pill').forEach(x => x.classList.remove('on'));
+      p.classList.toggle('on');
+      if (single && !p.classList.contains('on')) p.classList.add('on');
     });
   });
 });
 
-function getPillVal(id) {
-  return document.querySelector(`#${id} .pill.on`).dataset.v;
+function getPills(el) {
+  return Array.from(el.querySelectorAll('.pill.on')).map(p => p.dataset.v);
 }
 
+// ─── Tab switching ───────────────────────────────────────────────────────────
+const TAB_NAMES = ['arch','sizing','cloud','diagram','k8s'];
 function switchTab(name) {
-  const tabs = ['arch','sizing','k8s','diagram'];
-  document.querySelectorAll('.rtab').forEach((t,i) => t.classList.toggle('active', tabs[i] === name));
-  document.querySelectorAll('.rpanel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', TAB_NAMES[i] === name));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
 }
 
+// ─── Reset ──────────────────────────────────────────────────────────────────
 function resetForm() {
   document.getElementById('form-section').style.display = 'block';
   document.getElementById('results').style.display = 'none';
   document.getElementById('gen-btn').disabled = false;
 }
 
-async function generate() {
-  const payload = {
-    workload: getPillVal('workload-input'),
-    sla: getPillVal('sla-input'),
-    traffic: getPillVal('traffic-input'),
-    auth: getPillVal('auth-input'),
-    region: getPillVal('region-input'),
-    architecture: getPillVal('arch-input'),
-    dataSize: getPillVal('data-input'),
-    consistency: getPillVal('consistency-input')
+// ─── Collect inputs ──────────────────────────────────────────────────────────
+function collectInput() {
+  const $ = id => document.getElementById(id);
+  const uIdx = parseInt($('users-slider').value);
+
+  const getGroup = selector => {
+    const el = document.querySelector(selector);
+    return el ? getPills(el) : [];
   };
+
+  const allPillGroups = document.querySelectorAll('.pills');
+
+  return {
+    users:          USER_LEVELS[uIdx],
+    sla:            getGroup('[data-group="sla"]')[0] || '99%',
+    appType:        getGroup('#form-section .section:nth-child(3) .field:nth-child(1) .pills')[0] || 'E-commerce',
+    appTier:        getGroup('#form-section .section:nth-child(3) .field:nth-child(2) .pills')[0] || 'Dynamic application',
+    architecture:   getGroup('#form-section .section:nth-child(3) .field:nth-child(3) .pills')[0] || 'monolith',
+    trafficPattern: getGroup('#form-section .section:nth-child(4) .field:nth-child(1) .pills')[0] || 'constant',
+    latency:        getGroup('#form-section .section:nth-child(4) .field:nth-child(2) .pills')[0] || 'normal',
+    dataSize:       getGroup('#form-section .section:nth-child(4) .field:nth-child(3) .pills')[0] || 'medium',
+    consistency:    getGroup('#form-section .section:nth-child(4) .field:nth-child(4) .pills')[0] || 'SQL',
+    auth:           getGroup('#form-section .section:nth-child(5) .field:nth-child(1) .pills')[0] || 'basic',
+    region:         getGroup('#form-section .section:nth-child(5) .field:nth-child(2) .pills')[0] || 'local',
+    budget:         getGroup('#form-section .section:nth-child(5) .field:nth-child(3) .pills')[0] || 'medium',
+    workloads:      Array.from(document.querySelectorAll('[data-multi="true"] .pill.on')).map(p => p.dataset.v),
+    cloud:          Array.from(document.querySelectorAll('#form-section .section:last-of-type .pill.on')).map(p => p.dataset.v)[0] || 'Azure',
+  };
+}
+
+// ─── Generate ────────────────────────────────────────────────────────────────
+async function generate() {
+  const input = collectInput();
+  console.log('Input:', input);
 
   document.getElementById('gen-btn').disabled = true;
   document.getElementById('form-section').style.display = 'none';
   document.getElementById('results').style.display = 'block';
   document.getElementById('loading').style.display = 'flex';
-  document.getElementById('result-content').style.display = 'none';
+  document.getElementById('result-body').style.display = 'none';
+
+  // Meta tags
+  document.getElementById('meta-tags').innerHTML = `
+    <span class="mtag mtag-blue">${input.users} users</span>
+    <span class="mtag mtag-amber">SLA ${input.sla}</span>
+    <span class="mtag mtag-green">${input.cloud}</span>
+    <span class="mtag mtag-purple">${input.architecture}</span>
+    <span class="mtag mtag-red">${input.trafficPattern}</span>`;
 
   try {
     const res = await fetch(API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(input),
     });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    renderResults(data);
+    renderResults(data, input);
   } catch(e) {
     document.getElementById('loading').innerHTML =
-      `<span style="color:var(--danger)">⚠ Platform API unreachable. Please ensure the backend is running.</span>`;
+      `<div style="color:var(--red);font-size:13px">
+        ⚠ Cannot reach backend API.<br>
+        <span style="color:var(--muted);font-size:12px">Start it with: <code style="color:var(--blue)">cd backend && node server.js</code></span>
+      </div>`;
   }
 }
 
-async function renderResults(r) {
+// ─── Render ──────────────────────────────────────────────────────────────────
+function renderResults(r, input) {
   document.getElementById('loading').style.display = 'none';
-  document.getElementById('result-content').style.display = 'block';
+  document.getElementById('result-body').style.display = 'block';
 
-  // 1. Arch Tab
-  const a = r.arch;
-  const icons = { frontend:'🖥️', backend:'⚙️', database:'🗄️', cache:'⚡', queue:'📨', mlops:'🧠', ops:'🛠️' };
-  const labels = { frontend:'Edge & UI', backend:'API Services', database:'Data Store', cache:'In-Memory Cache', queue:'Event Stream', mlops:'AI/ML Platform', ops:'Platform Ops & Automation' };
-  let archHtml = '<h3>🏗️ Component Architecture</h3>';
-  Object.keys(a).forEach(k => {
-    if (a[k]) archHtml += `
-      <div class="arch-row">
-        <div class="arch-icon">${icons[k]}</div>
-        <div><div class="arch-label">${labels[k]}</div><div class="arch-val">${a[k]}</div></div>
-      </div>`;
-  });
-  document.getElementById('arch-container').innerHTML = archHtml;
-
-  // 2. Sizing Tab
   const s = r.sizing;
-  document.getElementById('sizing-container').innerHTML = `
-    <h3>📊 Compute Sizing & Limits</h3>
-    <div class="metrics">
-      <div class="metric"><div class="metric-label">Compute Nodes</div><div class="metric-val">${s.node_count}</div></div>
-      <div class="metric"><div class="metric-label">Min Pods</div><div class="metric-val">${s.hpa_min}</div></div>
-      <div class="metric"><div class="metric-label">Max Pods</div><div class="metric-val">${s.hpa_max}</div></div>
-      <div class="metric"><div class="metric-label">Volume (GB)</div><div class="metric-val">${s.storage_gb}</div></div>
-    </div>
-    <div style="font-size:14px;color:#a1a5b8;line-height:2">
-      <div style="display:flex; gap:10px;"><span style="color:#f0f2f8; width:120px; font-weight:600;">Node Class:</span> <span>${s.node_type}</span></div>
-      <div style="display:flex; gap:10px;"><span style="color:#f0f2f8; width:120px; font-weight:600;">Pod Resources:</span> <span>${s.cpu_per_pod} CPU / ${s.memory_per_pod} RAM</span></div>
-      <div style="display:flex; gap:10px;"><span style="color:#f0f2f8; width:120px; font-weight:600;">Scale Trigger:</span> <span>${s.hpa_trigger}</span></div>
+  const sm = r.summary;
+
+  // ── Summary metrics ──────────────────────────────────────────────────────
+  const workerStr = s.worker_pods > 0 ? `+${s.worker_pods}w` : '';
+  document.getElementById('summary-metrics').innerHTML = `
+    <div class="metric"><div class="metric-label">Frontend pods</div><div class="metric-val">${s.frontend_pods}</div><div class="metric-sub">HPA min</div></div>
+    <div class="metric"><div class="metric-label">Backend pods</div><div class="metric-val">${s.backend_pods}${workerStr}</div><div class="metric-sub">HPA min</div></div>
+    <div class="metric"><div class="metric-label">Nodes</div><div class="metric-val">${s.node_count}</div><div class="metric-sub">${sm.ha}</div></div>
+    <div class="metric"><div class="metric-label">Storage GB</div><div class="metric-val">${s.storage_gb}</div><div class="metric-sub">estimated</div></div>
+    <div class="metric"><div class="metric-label">HPA max</div><div class="metric-val">${s.hpa_max}</div><div class="metric-sub">backend pods</div></div>
+    <div class="metric"><div class="metric-label">Monthly cost</div><div class="metric-val" style="font-size:16px;color:var(--amber)">$${r.cost.total.toLocaleString()}</div><div class="metric-sub">estimate</div></div>`;
+
+  // ── Recommendations ───────────────────────────────────────────────────────
+  const recs = r.recommendations || [];
+  if (recs.length === 0) {
+    document.getElementById('recs-content').innerHTML = `<div class="empty-recs">✅ No critical advisories for this configuration.</div>`;
+  } else {
+    const icons = { critical: '🔴', warning: '🟡', info: '🔵' };
+    document.getElementById('recs-content').innerHTML = recs.map(rec => `
+      <div class="rec ${rec.level}">
+        <span class="rec-icon">${icons[rec.level]||'ℹ️'}</span>
+        <div>
+          <div class="rec-level">${rec.level}</div>
+          <div class="rec-text">${rec.text}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  // ── Architecture tab ──────────────────────────────────────────────────────
+  const a = r.arch;
+  const archRows = [
+    ['fe', '🖥', 'Frontend',      a.frontend],
+    ['be', '⚙️', 'Backend',       a.backend],
+    ['db', '🗄️', 'Database',      a.database],
+    ['ca', '⚡', 'Cache',          a.cache],
+    ['qu', '📨', 'Queue',          a.queue],
+    ['cd', '🌐', 'CDN',            a.cdn],
+    ['au', '🔐', 'Auth',           a.auth],
+    ['ha', '🔁', 'High Availability', a.multiZone],
+  ].filter(([,,,v]) => v && v !== 'None');
+
+  document.getElementById('tab-arch').innerHTML = `
+    <div class="res-card">
+      <h3>🏗 Architecture layers</h3>
+      ${archRows.map(([cls, icon, label, val]) => `
+        <div class="arch-row ${cls}">
+          <span class="arch-icon">${icon}</span>
+          <div><div class="arch-label">${label}</div><div class="arch-val">${val}</div></div>
+        </div>`).join('')}
     </div>`;
 
-  // 3. K8s Tab
-  currentYaml = buildArgoCdYaml(r.k8s);
-  document.getElementById('k8s-code').innerHTML = esc(currentYaml);
+  // ── Sizing tab ────────────────────────────────────────────────────────────
+  document.getElementById('tab-sizing').innerHTML = `
+    <div class="res-card">
+      <h3>🖥 Infrastructure sizing</h3>
+      <div style="font-size:13px;line-height:2;color:var(--muted)">
+        <div><span style="color:var(--text);font-weight:500">Node type:</span> ${s.node_type}</div>
+        <div><span style="color:var(--text);font-weight:500">Pod CPU / RAM:</span> ${s.cpu_per_pod} / ${s.memory_per_pod} (requests)</div>
+        <div><span style="color:var(--text);font-weight:500">HPA strategy:</span> min ${s.hpa_min} → max ${s.hpa_max} replicas · ${s.hpa_trigger}</div>
+        ${s.worker_pods > 0 ? `<div><span style="color:var(--text);font-weight:500">Worker pods:</span> ${s.worker_pods} (queue consumers)</div>` : ''}
+        <div><span style="color:var(--text);font-weight:500">HA zone:</span> ${sm.ha}</div>
+        <div><span style="color:var(--text);font-weight:500">Scaling mode:</span> ${sm.scaling}</div>
+      </div>
+    </div>
+    <div class="res-card">
+      <h3>📐 Sizing logic</h3>
+      <div style="font-size:13px;color:var(--muted);line-height:1.85">
+        Base pods come from scale tier (users). Multiplied by:<br>
+        • <span style="color:var(--text)">Traffic boost:</span> burst×2 / peak×1.5 / constant×1<br>
+        • <span style="color:var(--text)">SLA multiplier:</span> 99.99%×2 / 99.9%×1.5 / 99%×1<br>
+        Nodes = ceil(pods × cpu_req / node_allocatable_cpu)<br>
+        Multi-AZ adds 50–100% node overhead for zone redundancy.<br>
+        HPA fires at CPU >70% — pods scale before limits are hit (30–60s lead time).
+      </div>
+    </div>`;
 
-  // 4. Diagram Tab
-  try {
-    const { svg } = await mermaid.render('mermaid-svg', r.diagram);
-    currentSvg = svg;
-    document.getElementById('mermaid-render-div').innerHTML = svg;
-  } catch (err) {
-    document.getElementById('mermaid-render-div').innerHTML = `<pre class="code">Render error:\n${err.message}</pre>`;
-  }
+  // ── Cloud + Cost tab ──────────────────────────────────────────────────────
+  const c = r.cloud;
+  const cost = r.cost;
+  const svcRows = [
+    ['Compute',       c.service_compute],
+    ['Database',      c.service_db],
+    ['Cache',         c.service_cache],
+    ['Load Balancer', c.service_lb],
+    ['Storage',       c.service_storage],
+    c.service_queue ? ['Queue', c.service_queue] : null,
+    c.service_cdn   ? ['CDN',   c.service_cdn  ] : null,
+    c.service_auth  ? ['Auth',  c.service_auth ] : null,
+  ].filter(Boolean);
+
+  const haTag = c.multi_region
+    ? `<span class="mtag mtag-red" style="font-size:11px">🌍 Multi-region</span>`
+    : c.multi_zone
+    ? `<span class="mtag mtag-amber" style="font-size:11px">🔁 Multi-AZ</span>`
+    : `<span class="mtag mtag-blue" style="font-size:11px">📍 Single zone</span>`;
+
+  document.getElementById('tab-cloud').innerHTML = `
+    <div class="res-card">
+      <h3>☁️ Cloud recommendation</h3>
+      <div style="margin-bottom:10px;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <span class="mtag mtag-blue">${c.provider}</span>
+        <span class="mtag mtag-green">${c.use_kubernetes ? '☸ Kubernetes' : '🖥 VM/Compose'}</span>
+        ${haTag}
+      </div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:14px">${c.justification}</div>
+      ${svcRows.map(([l,v]) => `<div class="svc-row"><span class="svc-label">${l}</span><span class="svc-val">${v}</span></div>`).join('')}
+    </div>
+    <div class="res-card">
+      <h3>💰 Monthly cost estimate (USD)</h3>
+      ${cost.compute    ? `<div class="cost-row"><span>💻 Compute (nodes/pods)</span><span>$${cost.compute.toLocaleString()}</span></div>` : ''}
+      ${cost.database   ? `<div class="cost-row"><span>🗄️ Database (managed)</span><span>$${cost.database.toLocaleString()}</span></div>` : ''}
+      ${cost.storage    ? `<div class="cost-row"><span>📦 Storage</span><span>$${cost.storage.toLocaleString()}</span></div>` : ''}
+      ${cost.loadbalancer ? `<div class="cost-row"><span>⚖️ Load Balancer</span><span>$${cost.loadbalancer.toLocaleString()}</span></div>` : ''}
+      ${cost.queue      ? `<div class="cost-row"><span>📨 Queue / Streaming</span><span>$${cost.queue.toLocaleString()}</span></div>` : ''}
+      ${cost.cdn        ? `<div class="cost-row"><span>🌐 CDN</span><span>$${cost.cdn.toLocaleString()}</span></div>` : ''}
+      ${cost.auth       ? `<div class="cost-row"><span>🔐 Auth / SSO</span><span>$${cost.auth.toLocaleString()}</span></div>` : ''}
+      <div class="cost-row"><span>Total estimate</span><span>$${cost.total.toLocaleString()}/mo</span></div>
+      <div class="cost-scale">
+        📊 Scale reference &nbsp;·&nbsp;
+        ~100 users: ~$${cost.small_monthly}/mo &nbsp;·&nbsp;
+        ~10K users: ~$${cost.medium_monthly}/mo &nbsp;·&nbsp;
+        ~1M users: ~$${cost.large_monthly.toLocaleString()}/mo
+      </div>
+    </div>`;
+
+  // ── Diagram tab ───────────────────────────────────────────────────────────
+  const mermaidCode = r.diagram || 'graph TD\n  User --> App';
+  document.getElementById('tab-diagram').innerHTML = `
+    <div class="res-card">
+      <h3>🗺 Architecture diagram (Mermaid)</h3>
+      <div class="mermaid-wrap" id="mermaid-render"></div>
+      <div class="mermaid-src" id="mermaid-src">${esc(mermaidCode)}</div>
+    </div>`;
+
+  // Render Mermaid async after DOM settles
+  setTimeout(async () => {
+    try {
+      const { svg } = await mermaid.render('arch-diagram', mermaidCode);
+      document.getElementById('mermaid-render').innerHTML = svg;
+    } catch(e) {
+      document.getElementById('mermaid-render').innerHTML =
+        `<span style="color:var(--muted);font-size:12px">Diagram source above — paste into mermaid.live to visualize</span>`;
+    }
+  }, 80);
+
+  // ── K8s YAML tab ──────────────────────────────────────────────────────────
+  k8sRaw = buildYaml(r.k8s, r.sizing);
+  document.getElementById('tab-k8s').innerHTML = `
+    <div class="res-card">
+      <h3>☸️ Kubernetes manifests
+        <button class="copy-btn" onclick="copyYaml()">📋 copy all</button>
+      </h3>
+      <pre class="yaml">${syntaxHL(k8sRaw)}</pre>
+    </div>`;
 }
 
-function buildArgoCdYaml(k) {
-  return `apiVersion: argoproj.io/v1alpha1
-kind: Application
+// ─── Build YAML ──────────────────────────────────────────────────────────────
+function buildYaml(k, s) {
+  const name = k.app_name || 'my-app';
+  const ns   = k.namespace || 'production';
+  return `# ── deployment.yaml ────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: ${k.app_name}-platform
-  namespace: argocd
+  name: ${name}-frontend
+  namespace: ${ns}
 spec:
-  project: default
-  source:
-    repoURL: 'https://github.com/enterprise/platform-manifests.git'
-    path: kustomize/${k.app_name}/overlays/production
-    targetRevision: HEAD
-  destination:
-    server: 'https://kubernetes.default.svc'
-    namespace: ${k.namespace}
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+  replicas: ${k.frontend_replicas}
+  selector:
+    matchLabels:
+      app: ${name}-frontend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxSurge: 1, maxUnavailable: 0 }
+  template:
+    metadata:
+      labels:
+        app: ${name}-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: ${k.frontend_image}
+        ports:
+        - containerPort: 80
+        resources:
+          requests: { cpu: "${k.frontend_cpu_req}", memory: "${k.frontend_mem_req}" }
+          limits:   { cpu: "${k.frontend_cpu_lim}", memory: "${k.frontend_mem_lim}" }
+        livenessProbe:
+          httpGet: { path: /health, port: 80 }
+          initialDelaySeconds: 5
+          periodSeconds: 10
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: arch-builder-backend
-  namespace: ${k.namespace}
+  name: ${name}-backend
+  namespace: ${ns}
 spec:
-  replicas: ${k.hpa_min}
+  replicas: ${k.backend_replicas}
   selector:
     matchLabels:
-      app: arch-builder-backend
+      app: ${name}-backend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxSurge: 1, maxUnavailable: 0 }
   template:
     metadata:
       labels:
-        app: arch-builder-backend
+        app: ${name}-backend
     spec:
       containers:
-      - name: api
+      - name: backend
         image: ${k.backend_image}
         ports:
         - containerPort: 3000
         resources:
-          limits:
-            cpu: "${k.cpu_lim}"
-            memory: "${k.mem_lim}"
-`;
+          requests: { cpu: "${k.backend_cpu_req}", memory: "${k.backend_mem_req}" }
+          limits:   { cpu: "${k.backend_cpu_lim}", memory: "${k.backend_mem_lim}" }
+        env:
+        - name: NODE_ENV
+          value: "production"
+        livenessProbe:
+          httpGet: { path: /health, port: 3000 }
+          initialDelaySeconds: 10
+          periodSeconds: 15
+---
+# ── service.yaml ────────────────────────────────────────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${name}-frontend-svc
+  namespace: ${ns}
+spec:
+  selector:
+    app: ${name}-frontend
+  ports:
+  - port: 80
+    targetPort: 80
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${name}-backend-svc
+  namespace: ${ns}
+spec:
+  selector:
+    app: ${name}-backend
+  ports:
+  - port: 3000
+    targetPort: 3000
+  type: ClusterIP
+---
+# ── ingress.yaml ─────────────────────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ${name}-ingress
+  namespace: ${ns}
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts: [${k.ingress_host}]
+    secretName: ${name}-tls
+  rules:
+  - host: ${k.ingress_host}
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: ${name}-backend-svc
+            port: { number: 3000 }
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ${name}-frontend-svc
+            port: { number: 80 }
+---
+# ── hpa.yaml ─────────────────────────────────────────────────────
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ${name}-backend-hpa
+  namespace: ${ns}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ${name}-backend
+  minReplicas: ${k.hpa_min}
+  maxReplicas: ${k.hpa_max}
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: ${k.hpa_cpu_threshold}
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Pods
+        value: 2
+        periodSeconds: 15
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Pods
+        value: 1
+        periodSeconds: 60`;
 }
 
-function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-function downloadYaml() {
-  const blob = new Blob([currentYaml], { type: 'text/yaml' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'platform-manifests.yaml';
-  a.click();
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-function downloadSVG() {
-  const blob = new Blob([currentSvg], { type: 'image/svg+xml' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'architecture-topology.svg';
-  a.click();
+function syntaxHL(yaml) {
+  return esc(yaml)
+    .replace(/(^|\n)(#[^\n]*)/g, '$1<span class="y-comm">$2</span>')
+    .replace(/(\w[\w-]*):/g, '<span class="y-key">$1</span>:')
+    .replace(/: (\d+)/g, ': <span class="y-num">$1</span>')
+    .replace(/: "([^"]+)"/g, ': "<span class="y-str">$1</span>"');
+}
+
+function copyYaml() {
+  navigator.clipboard.writeText(k8sRaw).catch(()=>{});
+  const btn = document.querySelector('.copy-btn');
+  if (btn) { btn.textContent = '✓ copied!'; setTimeout(()=>btn.textContent='📋 copy all', 2000); }
 }
 </script>
 </body>
