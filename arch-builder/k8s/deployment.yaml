@@ -27,7 +27,7 @@ spec:
         image: ahmadki123/arch-builder-frontend:15
         imagePullPolicy: Always
         ports:
-        - containerPort: 80
+        - containerPort: 3000
         resources:
           requests:
             cpu: "200m"
