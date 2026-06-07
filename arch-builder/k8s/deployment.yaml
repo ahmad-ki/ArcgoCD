@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: ahmadki123/arch-builder-frontend:16
+        image: ahmadki123/arch-builder-frontend:17
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
@@ -74,7 +74,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: ahmadki123/arch-builder-backend:16
+        image: ahmadki123/arch-builder-backend:17
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
