@@ -2,5 +2,5 @@ projectKey=arch-builder
 serverUrl=http://192.168.1.10:9000
 serverVersion=26.6.0.123539
 dashboardUrl=http://192.168.1.10:9000/dashboard?id=arch-builder
-ceTaskId=e497094a-f950-4d2d-8bcd-b2bdd698c42c
-ceTaskUrl=http://192.168.1.10:9000/api/ce/task?id=e497094a-f950-4d2d-8bcd-b2bdd698c42c
+ceTaskId=59582df9-108e-47c8-a780-154234797f44
+ceTaskUrl=http://192.168.1.10:9000/api/ce/task?id=59582df9-108e-47c8-a780-154234797f44
