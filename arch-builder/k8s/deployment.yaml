@@ -74,7 +74,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: image: ahmadki123/smart-advisor-v3-backend:v3.3
+        image: ahmadki123/smart-advisor-v3-backend:v3.3
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
