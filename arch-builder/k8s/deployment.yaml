@@ -1,4 +1,6 @@
-# Frontend Deployment
+# ==============================
+# FRONTEND DEPLOYMENT
+# ==============================
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,7 +8,7 @@ metadata:
   namespace: default
   labels:
     app: arch-builder-frontend
-    version: "2.0"
+    version: "3.4"
 spec:
   replicas: 2
   selector:
@@ -26,8 +28,10 @@ spec:
       - name: frontend
         image: ahmadki123/smart-advisor-v3-frontend:v3.4
         imagePullPolicy: Always
+
         ports:
         - containerPort: 3000
+
         resources:
           requests:
             cpu: "200m"
@@ -35,20 +39,24 @@ spec:
           limits:
             cpu: "500m"
             memory: "256Mi"
+
+        # ✅ FIXED (no /health dependency)
         livenessProbe:
-          httpGet:
-            path: /health
+          tcpSocket:
             port: 3000
-          initialDelaySeconds: 5
+          initialDelaySeconds: 20
           periodSeconds: 10
+
         readinessProbe:
-          httpGet:
-            path: /health
+          tcpSocket:
             port: 3000
-          initialDelaySeconds: 3
+          initialDelaySeconds: 10
           periodSeconds: 5
+
 ---
-# Backend Deployment
+# ==============================
+# BACKEND DEPLOYMENT
+# ==============================
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -56,7 +64,7 @@ metadata:
   namespace: default
   labels:
     app: arch-builder-backend
-    version: "2.0"
+    version: "3.3"
 spec:
   replicas: 3
   selector:
@@ -76,8 +84,10 @@ spec:
       - name: backend
         image: ahmadki123/smart-advisor-v3-backend:v3.3
         imagePullPolicy: Always
+
         ports:
         - containerPort: 3000
+
         resources:
           requests:
             cpu: "500m"
@@ -85,20 +95,22 @@ spec:
           limits:
             cpu: "1000m"
             memory: "1Gi"
+
         env:
         - name: NODE_ENV
           value: "production"
         - name: PORT
           value: "3000"
+
+        # ✅ FIXED (no /health dependency)
         livenessProbe:
-          httpGet:
-            path: /health
+          tcpSocket:
             port: 3000
-          initialDelaySeconds: 10
+          initialDelaySeconds: 30
           periodSeconds: 15
+
         readinessProbe:
-          httpGet:
-            path: /health
+          tcpSocket:
             port: 3000
-          initialDelaySeconds: 5
+          initialDelaySeconds: 15
           periodSeconds: 10
