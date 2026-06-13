@@ -1,5 +1,5 @@
 # ==============================
-# FRONTEND DEPLOYMENT
+# FRONTEND (NGINX - PORT 80)
 # ==============================
 apiVersion: apps/v1
 kind: Deployment
@@ -30,7 +30,7 @@ spec:
         imagePullPolicy: Always
 
         ports:
-        - containerPort: 3000
+        - containerPort: 80 ✅   # NGINX runs on 80
 
         resources:
           requests:
@@ -40,22 +40,22 @@ spec:
             cpu: "500m"
             memory: "256Mi"
 
-        # ✅ FIXED (no /health dependency)
+        # ✅ CORRECT PROBES (TCP on port 80)
         livenessProbe:
           tcpSocket:
-            port: 3000
-          initialDelaySeconds: 30
+            port: 80
+          initialDelaySeconds: 10
           periodSeconds: 10
 
         readinessProbe:
           tcpSocket:
-            port: 3000
-          initialDelaySeconds: 20
+            port: 80
+          initialDelaySeconds: 5
           periodSeconds: 5
 
 ---
 # ==============================
-# BACKEND DEPLOYMENT
+# BACKEND (NODE - PORT 3000)
 # ==============================
 apiVersion: apps/v1
 kind: Deployment
@@ -86,7 +86,7 @@ spec:
         imagePullPolicy: Always
 
         ports:
-        - containerPort: 3000
+        - containerPort: 3000 ✅
 
         resources:
           requests:
@@ -102,15 +102,15 @@ spec:
         - name: PORT
           value: "3000"
 
-        # ✅ FIXED (no /health dependency)
+        # ✅ CORRECT PROBES (TCP on port 3000)
         livenessProbe:
           tcpSocket:
             port: 3000
-          initialDelaySeconds: 30
+          initialDelaySeconds: 20
           periodSeconds: 15
 
         readinessProbe:
           tcpSocket:
             port: 3000
-          initialDelaySeconds: 15
+          initialDelaySeconds: 10
           periodSeconds: 10
