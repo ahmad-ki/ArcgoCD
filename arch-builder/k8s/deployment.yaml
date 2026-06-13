@@ -30,17 +30,17 @@ spec:
         imagePullPolicy: Always
 
         ports:
-        - containerPort: 80 ✅   # NGINX runs on 80
+        - containerPort: 80   # ✅ NGINX runs on 80
 
         resources:
           requests:
-            cpu: "200m"
-            memory: "128Mi"
+            cpu: 200m
+            memory: 128Mi
           limits:
-            cpu: "500m"
-            memory: "256Mi"
+            cpu: 500m
+            memory: 256Mi
 
-        # ✅ CORRECT PROBES (TCP on port 80)
+        # ✅ PROBES FIXED (TCP instead of /health)
         livenessProbe:
           tcpSocket:
             port: 80
@@ -86,15 +86,15 @@ spec:
         imagePullPolicy: Always
 
         ports:
-        - containerPort: 3000 ✅
+        - containerPort: 3000   # ✅ Node app runs on 3000
 
         resources:
           requests:
-            cpu: "500m"
-            memory: "512Mi"
+            cpu: 500m
+            memory: 512Mi
           limits:
-            cpu: "1000m"
-            memory: "1Gi"
+            cpu: 1000m
+            memory: 1Gi
 
         env:
         - name: NODE_ENV
@@ -102,7 +102,7 @@ spec:
         - name: PORT
           value: "3000"
 
-        # ✅ CORRECT PROBES (TCP on port 3000)
+        # ✅ PROBES FIXED
         livenessProbe:
           tcpSocket:
             port: 3000
