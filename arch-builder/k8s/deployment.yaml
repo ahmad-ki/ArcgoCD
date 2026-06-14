@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: ahmadki123/smart-advisor-v3-frontend@sha256:af5b4e04e057a2fc97abbb9cf94d6d5249c996cd31ac0009654f0e77522f3938 ✅
+        image: ahmadki123/smart-advisor-v3-frontend@sha256:af5b4e04e057a2fc97abbb9cf94d6d5249c996cd31ac0009654f0e77522f3938
         imagePullPolicy: Always
 
         ports:
@@ -69,7 +69,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: ahmadki123/smart-advisor-v3-backend@sha256:810075a86f4455bdc00374d52ebc2d285ff63e6877fdbe08e2b021dfddcc8342 ✅
+        image: ahmadki123/smart-advisor-v3-backend@sha256:810075a86f4455bdc00374d52ebc2d285ff63e6877fdbe08e2b021dfddcc8342
         imagePullPolicy: Always
 
         ports:
