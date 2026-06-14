@@ -1,5 +1,5 @@
 # ==============================
-# FRONTEND (NGINX - PORT 80)
+# FRONTEND (NGINX)
 # ==============================
 apiVersion: apps/v1
 kind: Deployment
@@ -8,17 +8,11 @@ metadata:
   namespace: default
   labels:
     app: arch-builder-frontend
-    version: "3.4"
 spec:
   replicas: 2
   selector:
     matchLabels:
       app: arch-builder-frontend
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
   template:
     metadata:
       labels:
@@ -26,11 +20,11 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: ahmadki123/smart-advisor-v3-frontend:v3.4
+        image: ahmadki123/smart-advisor-v3-frontend@sha256:af5b4e04e057a2fc97abbb9cf94d6d5249c996cd31ac0009654f0e77522f3938 ✅
         imagePullPolicy: Always
 
         ports:
-        - containerPort: 80   # ✅ NGINX runs on 80
+        - containerPort: 80
 
         resources:
           requests:
@@ -40,7 +34,6 @@ spec:
             cpu: 500m
             memory: 256Mi
 
-        # ✅ PROBES FIXED (TCP instead of /health)
         livenessProbe:
           tcpSocket:
             port: 80
@@ -55,7 +48,7 @@ spec:
 
 ---
 # ==============================
-# BACKEND (NODE - PORT 3000)
+# BACKEND (NODE)
 # ==============================
 apiVersion: apps/v1
 kind: Deployment
@@ -64,17 +57,11 @@ metadata:
   namespace: default
   labels:
     app: arch-builder-backend
-    version: "3.3"
 spec:
   replicas: 3
   selector:
     matchLabels:
       app: arch-builder-backend
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
   template:
     metadata:
       labels:
@@ -82,11 +69,11 @@ spec:
     spec:
       containers:
       - name: backend
-        image: ahmadki123/smart-advisor-v3-backend:v3.3
+        image: ahmadki123/smart-advisor-v3-backend@sha256:810075a86f4455bdc00374d52ebc2d285ff63e6877fdbe08e2b021dfddcc8342 ✅
         imagePullPolicy: Always
 
         ports:
-        - containerPort: 3000   # ✅ Node app runs on 3000
+        - containerPort: 3000
 
         resources:
           requests:
@@ -102,7 +89,6 @@ spec:
         - name: PORT
           value: "3000"
 
-        # ✅ PROBES FIXED
         livenessProbe:
           tcpSocket:
             port: 3000
