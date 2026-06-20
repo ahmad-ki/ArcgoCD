@@ -5,25 +5,15 @@ on:
     branches: [ "main" ]
 
 jobs:
-  ci:
+  sonar:
     runs-on: self-hosted
 
     steps:
-      # ✅ Checkout repository
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # ✅ Debug
-      - name: List files
-        run: dir
-
-      # ✅ Test runner
-      - name: Test runner
-        run: echo "✅ Runner working"
-
-      # ✅ SonarQube Scan (FINAL WORKING VERSION)
       - name: SonarQube Scan
         shell: cmd
-        run: docker run --rm -e SONAR_HOST_URL=http://localhost:9000 -e SONAR_LOGIN=%SONAR_TOKEN% -v "%GITHUB_WORKSPACE%:/usr/src" sonarsource/sonar-scanner-cli -Dsonar.projectKey=argocd-project -Dsonar.projectName=ArgoCD_Project -Dsonar.sources=.
+        run: docker run --rm -e SONAR_HOST_URL=http://host.docker.internal:9000 -e SONAR_LOGIN=%SONAR_TOKEN% -v "%GITHUB_WORKSPACE%:/usr/src" sonarsource/sonar-scanner-cli -Dsonar.projectKey=argocd-project -Dsonar.projectName=ArgoCD_Project -Dsonar.sources=.
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
