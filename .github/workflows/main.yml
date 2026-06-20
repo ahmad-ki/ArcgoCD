@@ -17,4 +17,3 @@ jobs:
 
       - name: Test pipeline
         run: echo "GitHub Actions working ✅"
-``
