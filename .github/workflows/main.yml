@@ -6,20 +6,20 @@ on:
 
 jobs:
   ci:
-    runs-on: self-hosted   # ✅ IMPORTANT (your local runner)
+    runs-on: self-hosted
 
     steps:
-      # ✅ 1. Checkout code
+      # ✅ 1. Checkout repo
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # ✅ 2. Show files (debug)
-      - name: List repository files
+      # ✅ 2. Debug - list files
+      - name: List files
         run: dir
 
-      # ✅ 3. Test pipeline
-      - name: Test pipeline working
-        run: echo "✅ Runner working!"
+      # ✅ 3. Test runner
+      - name: Test runner
+        run: echo "✅ Runner working"
 
       # ✅ 4. SonarQube Scan
       - name: SonarQube Scan
@@ -30,4 +30,6 @@ jobs:
             -v "${{ github.workspace }}:/usr/src" `
             sonarsource/sonar-scanner-cli `
             -Dsonar.projectKey=argocd-project `
-            -Dsonar.sources=/usr/src
+            -Dsonar.projectName="ArgoCD Project" `
+            -Dsonar.sources=. `
+            -Dsonar.sourceEncoding=UTF-8
