@@ -9,29 +9,21 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      # ✅ 1. Checkout repository
+      # ✅ Checkout repo
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # ✅ 2. Debug: list files
+      # ✅ Debug
       - name: List files
         run: dir
 
-      # ✅ 3. Verify runner works
+      # ✅ Test runner
       - name: Test runner
         run: echo "✅ Runner is working"
 
-      # ✅ 4. SonarQube Scan (FIXED)
+      # ✅ SonarQube Scan (FINAL FIX)
       - name: SonarQube Scan
         shell: cmd
-        run: |
-          docker run --rm ^
-            -e SONAR_HOST_URL=http://localhost:9000 ^
-            -e SONAR_LOGIN=%SONAR_TOKEN% ^
-            -v %cd%:/usr/src ^
-            sonarsource/sonar-scanner-cli ^
-            -Dsonar.projectKey=argocd-project ^
-            -Dsonar.projectName=ArgoCD_Project ^
-            -Dsonar.sources=.
+        run: docker run --rm -e SONAR_HOST_URL=http://localhost:9000 -e SONAR_LOGIN=%SONAR_TOKEN% -v %cd%:/usr/src sonarsource/sonar-scanner-cli -Dsonar.projectKey=argocd-project -Dsonar.projectName=ArgoCD_Project -Dsonar.sources=.
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
