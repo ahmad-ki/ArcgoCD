@@ -4,6 +4,8 @@ on:
   push:
     branches: ["main"]
 
+  workflow_dispatch:
+
 jobs:
   ci:
     runs-on: self-hosted
@@ -11,41 +13,65 @@ jobs:
     steps:
       # ✅ 1. Checkout code
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # ✅ 2. Debug (verify files)
+      # ✅ 2. Show repo structure
       - name: List files
         shell: cmd
-        run: dir
+        run: |
+          dir
+          dir arch-builder
 
-      # ✅ 3. Check SONAR_TOKEN (DEBUG - REMOVE LATER)
-      - name: Check Token
+      # ✅ 3. Check Sonar variables
+      - name: Check Sonar variables
         shell: cmd
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: echo SONAR_TOKEN=%SONAR_TOKEN%
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          echo SONAR_HOST_URL=%SONAR_HOST_URL%
+          echo SONAR_TOKEN is configured
 
-      # ✅ 4. SonarQube Scan ✅
+      # ✅ 4. SonarQube Scan
       - name: SonarQube Scan
         shell: cmd
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: >
           docker run --rm
-          -e SONAR_HOST_URL=http://host.docker.internal:9000
-          -e SONAR_LOGIN=%SONAR_TOKEN%
+          -e SONAR_HOST_URL=%SONAR_HOST_URL%
+          -e SONAR_TOKEN=%SONAR_TOKEN%
           -v "%GITHUB_WORKSPACE%:/usr/src"
           sonarsource/sonar-scanner-cli
-          -Dsonar.projectKey=ahmad
-          -Dsonar.projectName=ahmad
-          -Dsonar.sources=.
+          "-Dsonar.projectKey=ahmad-ki_ArcgoCD_decced61-67d3-403f-9ba8-56db1d5d2758"
+          "-Dsonar.sources=arch-builder/backend,arch-builder/frontend"
+          "-Dsonar.qualitygate.wait=true"
 
-      # ✅ 5. Build Docker image ✅
+      # ✅ 5. Validate project folders
+      - name: Validate project folders
+        shell: cmd
+        run: |
+          if exist arch-builder\backend (
+            echo backend OK
+          ) else (
+            echo backend missing
+            exit /b 1
+          )
+
+          if exist arch-builder\frontend (
+            echo frontend OK
+          ) else (
+            echo frontend missing
+            exit /b 1
+          )
+
+      # ✅ 6. Build Docker image
       - name: Build Docker Image
         shell: cmd
-        run: docker build -t ahmad-app:latest .
+        run: docker build -t ahmad-app:latest arch-builder
 
-      # ✅ 6. List Docker images
+      # ✅ 7. Verify Docker images
       - name: Verify Docker images
         shell: cmd
         run: docker images
