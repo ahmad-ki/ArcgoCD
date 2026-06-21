@@ -13,10 +13,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # ✅ 2. Debug (optional)
+      # ✅ 2. List files (debug)
       - name: List files
-        run: dir
         shell: cmd
+        run: dir
 
       # ✅ 3. SonarQube Scan ✅
       - name: SonarQube Scan
@@ -38,7 +38,7 @@ jobs:
         shell: cmd
         run: docker build -t ahmad-app:latest .
 
-      # ✅ 5. Verify Docker image
+      # ✅ 5. Verify Docker images
       - name: List Docker images
         shell: cmd
         run: docker images
