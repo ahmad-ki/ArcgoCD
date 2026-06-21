@@ -9,19 +9,26 @@ jobs:
     runs-on: self-hosted
 
     steps:
+      # ✅ 1. Checkout repository
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # ✅ 2. Debug (optional)
+      - name: List files
+        run: dir
+
+      # ✅ 3. SonarQube Scan (FINAL WORKING VERSION)
       - name: SonarQube Scan
         shell: powershell
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
+          powershell -ExecutionPolicy Bypass -Command "
           docker run --rm `
             -e SONAR_HOST_URL=http://host.docker.internal:9000 `
             -e SONAR_LOGIN=$env:SONAR_TOKEN `
-            -v "${{ github.workspace }}:/usr/src" `
+            -v '${{ github.workspace }}:/usr/src' `
             sonarsource/sonar-scanner-cli `
-            "-Dsonar.projectKey=argocd-project" `
-            "-Dsonar.projectName=ArgoCD_Project" `
-            "-Dsonar.sources=."
+            -Dsonar.projectKey=argocd-project `
+            -Dsonar.projectName=ArgoCD_Project `
+            -Dsonar.sources=.
