@@ -13,12 +13,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # ✅ 2. List files (debug)
+      # ✅ 2. Debug (verify files)
       - name: List files
         shell: cmd
         run: dir
 
-      # ✅ 3. SonarQube Scan ✅
+      # ✅ 3. Check SONAR_TOKEN (DEBUG - REMOVE LATER)
+      - name: Check Token
+        shell: cmd
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: echo SONAR_TOKEN=%SONAR_TOKEN%
+
+      # ✅ 4. SonarQube Scan ✅
       - name: SonarQube Scan
         shell: cmd
         env:
@@ -33,12 +40,12 @@ jobs:
           -Dsonar.projectName=ahmad
           -Dsonar.sources=.
 
-      # ✅ 4. Build Docker image ✅
+      # ✅ 5. Build Docker image ✅
       - name: Build Docker Image
         shell: cmd
         run: docker build -t ahmad-app:latest .
 
-      # ✅ 5. Verify Docker images
-      - name: List Docker images
+      # ✅ 6. List Docker images
+      - name: Verify Docker images
         shell: cmd
         run: docker images
